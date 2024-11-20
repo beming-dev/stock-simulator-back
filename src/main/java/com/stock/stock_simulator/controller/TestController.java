@@ -19,6 +19,7 @@ public class TestController {
 
     @GetMapping("/hello")
     public ResponseEntity<Object> testApi() {
+        System.out.println("hello");
         String result = "API 통신에 성공하였습니다.";
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
