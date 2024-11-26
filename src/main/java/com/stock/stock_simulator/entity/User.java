@@ -5,6 +5,7 @@ public class User {
     private String gId;
     private String won;
     private String nickname;
+    private String provider;
 
     public String getId() {
         return id;
@@ -38,6 +39,14 @@ public class User {
         this.nickname = nickname;
     }
 
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -45,6 +54,7 @@ public class User {
                 ", gId='" + gId + '\'' +
                 ", won='" + won + '\'' +
                 ", nickname='" + nickname + '\'' +
+                ", provider='" + provider + '\'' +
                 '}';
     }
 }
