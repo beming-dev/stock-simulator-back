@@ -65,7 +65,8 @@ public class OAuthController {
         String jwtToken = jwtService.generateToken(id, email, name);
 
         // Redirect to frontend with token
-        String redirectUrl = "http://localhost:5173/login-success?token=" + jwtToken;
+//        String redirectUrl = "http://localhost:5173/login-success?token=" + jwtToken;
+        String redirectUrl = "https://beming-dev.kro.kr/login-success?token=" + jwtToken;
         response.sendRedirect(redirectUrl);
     }
 }
