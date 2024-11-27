@@ -22,8 +22,15 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("/api/oauth/success", true)
-                        .failureUrl("/api/oauth/failure")
+                        .authorizationEndpoint(authorization -> authorization
+                                .baseUri("/disabled") // 기본 OAuth2 경로를 무효화
+                        )
+                        .successHandler((request, response, authentication) -> {
+                            response.sendRedirect("/login-success");
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            response.sendRedirect("/login-failure");
+                        })
                 )
                 .addFilterBefore(jwtAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
