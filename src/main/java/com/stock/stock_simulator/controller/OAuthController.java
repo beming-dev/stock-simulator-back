@@ -36,7 +36,7 @@ public class OAuthController {
         params.add("code", code);
         params.add("client_id", env.get("GOOGLE_ID"));
         params.add("client_secret", env.get("GOOGLE_SECRET"));
-        params.add("redirect_uri", "https://beming-dev.kro.kr/backend/api/oauth/google");
+        params.add("redirect_uri", "https://beming-stock-back.kro.kr/api/oauth/google");
         params.add("grant_type", "authorization_code");
 
         HttpHeaders headers = new HttpHeaders();
@@ -66,7 +66,7 @@ public class OAuthController {
 
         // Redirect to frontend with token
 //        String redirectUrl = "http://localhost:5173/login-success?token=" + jwtToken;
-        String redirectUrl = "https://beming-dev.kro.kr/login-success?token=" + jwtToken;
+        String redirectUrl = "https://beming-stock.kro.kr/login-success?token=" + jwtToken;
         response.sendRedirect(redirectUrl);
     }
 }
