@@ -36,7 +36,7 @@ public class OAuthController {
         params.add("code", code);
         params.add("client_id", env.get("GOOGLE_ID"));
         params.add("client_secret", env.get("GOOGLE_SECRET"));
-        params.add("redirect_uri", "http://localhost:3000/api/oauth/google");
+        params.add("redirect_uri", "https://beming-dev.kro.kr/backend/api/oauth/google");
         params.add("grant_type", "authorization_code");
 
         HttpHeaders headers = new HttpHeaders();
