@@ -18,7 +18,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/oauth/**").permitAll()  // 변경된 부분
+//                        .requestMatchers("/api/oauth/**").permitAll()  // 변경된 부분
+                        .requestMatchers("/**").permitAll()  // 변경된 부분
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

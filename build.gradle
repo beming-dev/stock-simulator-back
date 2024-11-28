@@ -31,6 +31,21 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // JSON 처리 라이브러리
 
+	//swagger
+	implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
+	implementation 'org.springdoc:springdoc-openapi-data-rest:1.7.0' // (선택) Spring Data REST 지원
+	implementation 'org.springdoc:springdoc-openapi-security:1.7.0' // (선택) 보안 설정 지원
+
+	//webclient
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	//json
+	implementation 'org.json:json:20240303'
+	implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+
+	//websocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
