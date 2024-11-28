@@ -41,6 +41,7 @@ public class OAuthController {
 
         System.out.println(env.get("GOOGLE_ID"));
         System.out.println(env.get("GOOGLE_SECRET"));
+        System.out.println("hello");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
