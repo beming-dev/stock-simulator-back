@@ -39,6 +39,9 @@ public class OAuthController {
         params.add("redirect_uri", "https://beming-stock-back.kro.kr/api/oauth/google");
         params.add("grant_type", "authorization_code");
 
+        System.out.println(env.get("GOOGLE_ID"));
+        System.out.println(env.get("GOOGLE_SECRET"));
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
