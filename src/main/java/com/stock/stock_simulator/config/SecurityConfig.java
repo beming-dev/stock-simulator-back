@@ -22,8 +22,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("/api/oauth/success", true)
-                        .failureUrl("/api/oauth/failure")
+                        .defaultSuccessUrl("/login-success")
+                        .failureUrl("/login-failure")
                 )
                 .addFilterBefore(jwtAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
