@@ -27,21 +27,20 @@ public class OAuthController {
 
     @GetMapping("/google")
     public void handleGoogleOAuth(@RequestParam String code, HttpServletResponse response) throws IOException {
+        Map<String, String> env = getenv();
+
         // Exchange the Authorization Code for an Access Token
         String tokenUrl = "https://oauth2.googleapis.com/token";
         RestTemplate restTemplate = new RestTemplate();
+        String FRONT_BASE_URL=env.get("FRONT_BASE_URL");
+        String BACK_BASE_URL=env.get("BACK_BASE_URL");
 
-        Map<String, String> env = getenv();
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("code", code);
         params.add("client_id", env.get("GOOGLE_ID"));
         params.add("client_secret", env.get("GOOGLE_SECRET"));
-        params.add("redirect_uri", "https://beming-stock-back.kro.kr/api/oauth/google");
+        params.add("redirect_uri", BACK_BASE_URL + "/api/oauth/google");
         params.add("grant_type", "authorization_code");
-
-        System.out.println(env.get("GOOGLE_ID"));
-        System.out.println(env.get("GOOGLE_SECRET"));
-        System.out.println("hello");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -70,7 +69,7 @@ public class OAuthController {
 
         // Redirect to frontend with token
 //        String redirectUrl = "http://localhost:5173/login-success?token=" + jwtToken;
-        String redirectUrl = "https://beming-stock.kro.kr/login-success?token=" + jwtToken;
+        String redirectUrl = FRONT_BASE_URL + "/login-success?token=" + jwtToken;
         response.sendRedirect(redirectUrl);
     }
 }
