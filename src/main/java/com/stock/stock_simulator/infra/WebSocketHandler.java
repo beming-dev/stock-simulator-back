@@ -13,9 +13,11 @@ import java.util.Map;
 public class WebSocketHandler extends TextWebSocketHandler {
     private String webSocketKey;
     private WebSocketSession session;
+    private FrontendWebSocketHandler frontendWebSocketHandler;
 
-    public WebSocketHandler(String webSocketKey) {
+    public WebSocketHandler(String webSocketKey, FrontendWebSocketHandler frontendWebSocketHandler) {
         this.webSocketKey = webSocketKey;
+        this.frontendWebSocketHandler = frontendWebSocketHandler;
     }
 
     @Override // 웹 소켓 연결시
@@ -44,8 +46,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         // Input 작성 (Body 내부의 중첩 필드)
         Map<String, String> input = new HashMap<>();
-        input.put("tr_id", "H0IFCNT0"); // 거래 ID
-        input.put("tr_key", "101S12"); // 거래 Key (종목코드)
+        input.put("tr_id", "H0STOAA0"); // 거래 ID
+        input.put("tr_key", "005930"); // 거래 Key (종목코드)
 
         // Body 작성
         Map<String, Object> body = new HashMap<>();
@@ -67,7 +69,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override // 데이터 통신시
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
-        System.out.println("Received Message: " + payload);
+//        System.out.println("Received Message: " + payload);
 
         if (payload.contains("PINGPONG")) {
             System.out.println("Received PING. Sending PONG...");
@@ -76,8 +78,9 @@ public class WebSocketHandler extends TextWebSocketHandler {
         }
 
         String[] stockInfo = payload.split("\\^");
-        if(stockInfo.length > 1){
-            System.out.println("해당 주식 현재 가격" + stockInfo[1]);
+
+        if (frontendWebSocketHandler != null) {
+            frontendWebSocketHandler.broadcastToTargetGroup(stockInfo.toString());
         }
     }
 

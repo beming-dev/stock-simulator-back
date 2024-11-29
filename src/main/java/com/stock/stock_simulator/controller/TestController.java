@@ -1,37 +1,41 @@
 package com.stock.stock_simulator.controller;
 
-import com.stock.stock_simulator.interfaces.StockApiInterface;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.stereotype.Controller;
 
-/**
- * Please explain the class!!
- *
- * @author : jonghoon
- * @fileName : TestController
- * @since : 2/5/24
- */
-@RestController
-@RequestMapping("/api2")
+@Controller
 public class TestController {
-    private final StockApiInterface stockApi;
+    @MessageMapping("/stock") // 클라이언트에서 메시지를 보낼 경로
+    @SendTo("/topic/stock")    // 클라이언트가 구독할 경로
+    public YourResponse handleSubscription(YourRequest request) {
+        System.out.println("Received subscription request: " + request.getTopic());
 
-    public TestController(StockApiInterface stockApi) {
-        this.stockApi = stockApi;
+        // 서버에서 처리 후 응답 생성
+        return new YourResponse("Message to topic: " + request.getTopic());
+    }
+}
+
+class YourRequest {
+    private String topic;
+
+    public String getTopic() {
+        return topic;
     }
 
-    @GetMapping("/hello")
-    public ResponseEntity<Object> testApi() {
-        System.out.println("hello");
-        String result = "API 통신에 성공하였습니다.";
-        return new ResponseEntity<>(result, HttpStatus.OK);
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+}
+
+class YourResponse {
+    private String message;
+
+    public YourResponse(String message) {
+        this.message = message;
     }
 
-    @GetMapping("/test")
-    public String test() {
-        return stockApi.getWebSocketKey();
+    public String getMessage() {
+        return message;
     }
 }
