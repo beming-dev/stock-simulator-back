@@ -21,4 +21,5 @@ public class WebSocketConfig implements WebSocketConfigurer {
         registry.addHandler(frontendWebSocketHandler, "/ws") // WebSocket 엔드포인트
                 .setAllowedOriginPatterns("*"); // 모든 Origin 허용 (CORS 설정)
     }
+
 }

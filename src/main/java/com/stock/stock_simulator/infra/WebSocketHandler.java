@@ -1,6 +1,10 @@
 package com.stock.stock_simulator.infra;
 
 import com.google.gson.Gson;
+import com.stock.stock_simulator.event.WebSocketEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -10,30 +14,42 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class WebSocketHandler extends TextWebSocketHandler {
+@Component
+public class WebSocketHandler extends TextWebSocketHandler implements ApplicationListener<WebSocketEvent> {
+    @Autowired
+    private FrontendWebSocketHandler frontendWebSocketHandler;
     private String webSocketKey;
     private WebSocketSession session;
-    private FrontendWebSocketHandler frontendWebSocketHandler;
 
-    public WebSocketHandler(String webSocketKey, FrontendWebSocketHandler frontendWebSocketHandler) {
+    public void setWebSocketKey(String webSocketKey) {
         this.webSocketKey = webSocketKey;
-        this.frontendWebSocketHandler = frontendWebSocketHandler;
+    }
+
+    @Override
+    public void onApplicationEvent(WebSocketEvent event) {
+        String tr_id = event.getTr_id();
+        String tr_key = event.getTr_key();
+        String tr_type = event.getTr_type();
+
+        try {
+            sendMessage(tr_id, tr_key, tr_type);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override // 웹 소켓 연결시
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        System.out.println("WebSocket Connected: " + session.getId());
+        System.out.println("WebSocket Connected: ");
+        System.out.println(webSocketKey);
         this.session = session;
-
-        this.sendMessage();
     }
 
-    private void sendMessage() throws Exception {
+    private void sendMessage(String tr_id, String tr_key, String tr_type) throws Exception {
         if (session == null || !session.isOpen()) {
             System.out.println("WebSocket session is not open or is null.");
             return;
         }
-
         // Gson 객체 생성
         Gson gson = new Gson();
 
@@ -41,13 +57,13 @@ public class WebSocketHandler extends TextWebSocketHandler {
         Map<String, String> header = new HashMap<>();
         header.put("approval_key", webSocketKey); // WebSocket Key
         header.put("custtype", "P"); // 고객 타입: 개인
-        header.put("tr_type", "1"); // 거래 타입: 등록
+        header.put("tr_type", tr_type); // 거래 타입: 등록
         header.put("content-type", "utf-8"); // Content-Type
 
         // Input 작성 (Body 내부의 중첩 필드)
         Map<String, String> input = new HashMap<>();
-        input.put("tr_id", "H0STOAA0"); // 거래 ID
-        input.put("tr_key", "005930"); // 거래 Key (종목코드)
+        input.put("tr_id", tr_id); // 거래 ID
+        input.put("tr_key", tr_key); // 거래 Key (종목코드)
 
         // Body 작성
         Map<String, Object> body = new HashMap<>();
@@ -80,7 +96,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         String[] stockInfo = payload.split("\\^");
 
         if (frontendWebSocketHandler != null) {
-            frontendWebSocketHandler.broadcastToTargetGroup(stockInfo.toString());
+            frontendWebSocketHandler.broadcastToTargetGroup(payload);
         }
     }
 
