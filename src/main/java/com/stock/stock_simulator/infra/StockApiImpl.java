@@ -1,8 +1,10 @@
 package com.stock.stock_simulator.infra;
 
+import com.stock.stock_simulator.entity.Stock;
 import com.stock.stock_simulator.entity.Token;
 import com.stock.stock_simulator.interfaces.KeyRepository;
 import com.stock.stock_simulator.interfaces.StockApiInterface;
+import com.stock.stock_simulator.interfaces.StockRepository;
 import com.stock.stock_simulator.service.TokenService;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 public class StockApiImpl implements StockApiInterface {
@@ -18,17 +21,19 @@ public class StockApiImpl implements StockApiInterface {
     private String AppKey;
     private String SecretKey;
     public TokenService tokenService;
+    private final StockRepository stockRepository;
 
     public StockApiImpl(
             @Value("${kinvest.appkey}") String appKey,
             @Value("${kinvest.secretkey}") String secretKey,
             KeyRepository keyRepository,
-            TokenService tokenService
+            TokenService tokenService, StockRepository stockRepository
     ) {
         this.tokenService = tokenService;
         AppKey = appKey;
         SecretKey = secretKey;
         this.keyRepository = keyRepository;
+        this.stockRepository = stockRepository;
     }
 
     private String postApiRequest(String uri, Object requestBody, Map<String, String> headersMap){
@@ -173,5 +178,18 @@ public class StockApiImpl implements StockApiInterface {
     @Override
     public String getNasdaqTickData(String EXCD, String SYMB, String NMIN, String PINC, String NEXT, String NREC, String FILL, String KEYB) {
         return "";
+    }
+
+    @Override
+    public String getCurrentStockPrice(String symbol) throws Exception {
+        Stock stockData = stockRepository.findBySymbol(symbol);
+        if(stockData == null) throw new Exception("Stock not found");
+
+        if(Objects.equals(stockData.getCountry(), "NAS")){
+            return getNasdaqStockPrice(symbol);
+        }else if(Objects.equals(stockData.getCountry(), "KOS")){
+            return getKoreaStockPrice("J", symbol);
+        }
+        throw new Exception("Invalid stock data");
     }
 }

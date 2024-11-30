@@ -17,14 +17,8 @@ public class StockApiController {
     }
 
     @GetMapping("/currentPrice")
-    public String getCurrentPrice() {
-        return stockApi.getKoreaStockPrice("J", "005930");
-    }
-
-    @GetMapping("/overseas/currentPrice")
     @ResponseBody
-    public String getOverseasCurrentPrice(@RequestParam String SYMB) {
-        System.out.println(SYMB);
-        return stockApi.getNasdaqStockPrice("AAPL");
+    public String getCurrentPrice(@RequestParam String SYMB) throws Exception {
+        return stockApi.getCurrentStockPrice("AAPL");
     }
 }
