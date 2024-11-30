@@ -1,7 +1,7 @@
 package com.stock.stock_simulator.service;
 
 import com.stock.stock_simulator.entity.Token;
-import com.stock.stock_simulator.interfaces.KeyRepository;
+import com.stock.stock_simulator.interfaces.TokenRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -9,10 +9,10 @@ import java.time.format.DateTimeFormatter;
 
 @Service
 public class TokenService {
-    private KeyRepository keyRepository;
+    private TokenRepository tokenRepository;
 
-    public TokenService(KeyRepository keyRepository) {
-        this.keyRepository = keyRepository;
+    public TokenService(TokenRepository tokenRepository) {
+        this.tokenRepository = tokenRepository;
     }
 
 
@@ -31,12 +31,12 @@ public class TokenService {
     }
 
     public Token getAccessToken(){
-        Token token = keyRepository.findByType("access_token");
+        Token token = tokenRepository.findByType("access_token");
         return token;
     }
 
     public void createAccessToken(Token token){
-        keyRepository.save(token);
+        tokenRepository.save(token);
         return;
     }
 }

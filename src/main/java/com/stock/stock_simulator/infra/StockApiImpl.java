@@ -1,8 +1,11 @@
 package com.stock.stock_simulator.infra;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.stock.stock_simulator.entity.Stock;
 import com.stock.stock_simulator.entity.Token;
-import com.stock.stock_simulator.interfaces.KeyRepository;
+import com.stock.stock_simulator.interfaces.TokenRepository;
 import com.stock.stock_simulator.interfaces.StockApiInterface;
 import com.stock.stock_simulator.interfaces.StockRepository;
 import com.stock.stock_simulator.service.TokenService;
@@ -17,7 +20,7 @@ import java.util.Objects;
 
 @Component
 public class StockApiImpl implements StockApiInterface {
-    private final KeyRepository keyRepository;
+    private final TokenRepository tokenRepository;
     private String AppKey;
     private String SecretKey;
     public TokenService tokenService;
@@ -26,13 +29,13 @@ public class StockApiImpl implements StockApiInterface {
     public StockApiImpl(
             @Value("${kinvest.appkey}") String appKey,
             @Value("${kinvest.secretkey}") String secretKey,
-            KeyRepository keyRepository,
+            TokenRepository tokenRepository,
             TokenService tokenService, StockRepository stockRepository
     ) {
         this.tokenService = tokenService;
         AppKey = appKey;
         SecretKey = secretKey;
-        this.keyRepository = keyRepository;
+        this.tokenRepository = tokenRepository;
         this.stockRepository = stockRepository;
     }
 
@@ -119,7 +122,7 @@ public class StockApiImpl implements StockApiInterface {
             newToken.setExpires(expires);
             newToken.setType("access_token");
 
-            keyRepository.save(newToken);
+            tokenRepository.save(newToken);
             
             return accessToken;
         }
@@ -165,7 +168,30 @@ public class StockApiImpl implements StockApiInterface {
 
         String response = getApiRequest(url, headersMap, queryParams);
 
-        System.out.println(response);
+        return response;
+    }
+
+    public String getNasdaqStockPrice2(String SYMB) {
+        String accessKey = getAccessKey();
+
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Content-Type", "application/json; charset=utf-8");
+        headersMap.put("authorization", "Bearer " + accessKey); // 실제 토큰 값 사용
+        headersMap.put("appkey", AppKey); // 실제 AppKey 값 사용
+        headersMap.put("appsecret", SecretKey); // 실제 SecretKey 값 사용
+        headersMap.put("tr_id", "HHDFS76240000");
+
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("AUTH", "");
+        queryParams.put("EXCD", "NAS");
+        queryParams.put("SYMB", SYMB);
+        queryParams.put("GUBN", "0");
+        queryParams.put("BYMD", "");
+        queryParams.put("MODP", "0");
+
+        String url = "/uapi/overseas-price/v1/quotations/dailyprice";
+
+        String response = getApiRequest(url, headersMap, queryParams);
 
         return response;
     }
@@ -186,9 +212,45 @@ public class StockApiImpl implements StockApiInterface {
         if(stockData == null) throw new Exception("Stock not found");
 
         if(Objects.equals(stockData.getCountry(), "NAS")){
-            return getNasdaqStockPrice(symbol);
+            JsonObject transformedJson = new JsonObject();
+
+            String res1 = getNasdaqStockPrice(symbol);
+            String res2 = getNasdaqStockPrice2(symbol);
+
+            //customizing
+            JsonObject rootObject1 = JsonParser.parseString(res1).getAsJsonObject();
+            JsonObject outputObject1 = rootObject1.getAsJsonObject("output");
+
+            JsonObject rootObject2 = JsonParser.parseString(res2).getAsJsonObject();
+            JsonArray outputObject2 = rootObject2.getAsJsonArray("output2");
+
+            transformedJson.addProperty("name", stockData.getName());
+            transformedJson.addProperty("symbol", stockData.getSymbol());
+            transformedJson.addProperty("country", stockData.getCountry());
+            transformedJson.addProperty("type", stockData.getType());
+            transformedJson.addProperty("price", outputObject1.get("last").getAsString());
+            transformedJson.addProperty("high", outputObject2.get(0).getAsJsonObject().get("high").getAsString());
+            transformedJson.addProperty("low", outputObject2.get(0).getAsJsonObject().get("low").getAsString());
+
+            return transformedJson.toString();
+
         }else if(Objects.equals(stockData.getCountry(), "KOS")){
-            return getKoreaStockPrice("J", symbol);
+            JsonObject transformedJson = new JsonObject();
+
+            String res1 = getKoreaStockPrice("J", symbol);
+
+            JsonObject rootObject1 = JsonParser.parseString(res1).getAsJsonObject();
+            JsonObject outputObject1 = rootObject1.getAsJsonObject("output");
+
+            transformedJson.addProperty("name", stockData.getName());
+            transformedJson.addProperty("symbol", stockData.getSymbol());
+            transformedJson.addProperty("country", stockData.getCountry());
+            transformedJson.addProperty("type", stockData.getType());
+            transformedJson.addProperty("price", outputObject1.get("stck_prpr").getAsString());
+            transformedJson.addProperty("high", outputObject1.get("stck_hgpr").getAsString());
+            transformedJson.addProperty("low", outputObject1.get("-stck_lwpr").getAsString());
+
+            return transformedJson.toString();
         }
         throw new Exception("Invalid stock data");
     }
