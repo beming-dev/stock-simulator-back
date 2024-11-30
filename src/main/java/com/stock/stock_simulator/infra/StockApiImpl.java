@@ -22,7 +22,7 @@ public class StockApiImpl implements StockApiInterface {
         SecretKey = secretKey;
     }
 
-    private String apiRequest(String uri, Object requestBody, Map<String, String> headersMap){
+    private String postApiRequest(String uri, Object requestBody, Map<String, String> headersMap){
         WebClient webClient = WebClient.builder()
                 .baseUrl("https://openapi.koreainvestment.com:9443")
                 .build();
@@ -37,6 +37,25 @@ public class StockApiImpl implements StockApiInterface {
                 .block(); // block()은 동기 방식으로 결과를 기다림
         return response;
     }
+    private String getApiRequest(String uri, Map<String, String> headersMap, Map<String, Object> queryParams){
+        WebClient webClient = WebClient.builder()
+                .baseUrl("https://openapi.koreainvestment.com:9443")
+                .build();
+        String response = webClient.get()
+                .uri(uriBuilder -> {
+                    uriBuilder.path(uri);
+                    queryParams.forEach(uriBuilder::queryParam); // 쿼리 파라미터 추가
+                    return uriBuilder.build();
+                })
+                .headers(headers -> {
+                    headersMap.forEach(headers::set); // 동적으로 헤더 추가
+                })
+                .retrieve()
+                .bodyToMono(String.class)
+                .block(); // block()은 동기 방식으로 결과를 기다림
+        return response;
+    }
+
 
     @Override
     public String getWebSocketKey() {
@@ -48,7 +67,7 @@ public class StockApiImpl implements StockApiInterface {
         requestBody.put("appkey", AppKey);
         requestBody.put("secretkey", SecretKey);
 
-        String response = apiRequest("/oauth2/Approval", requestBody, headersMap);
+        String response = postApiRequest("/oauth2/Approval", requestBody, headersMap);
 
         JSONObject obj = new JSONObject(response);
         String socketKey = obj.getString("approval_key");
@@ -57,23 +76,66 @@ public class StockApiImpl implements StockApiInterface {
     }
 
     @Override
+    public String getAccessKey() {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Content-Type", "application/json");
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("grant_type", "client_credentials");
+        requestBody.put("appkey", AppKey);
+        requestBody.put("appsecret", SecretKey);
+
+        String response = postApiRequest("/oauth2/tokenP", requestBody, headersMap);
+
+        JSONObject obj = new JSONObject(response);
+        String socketKey = obj.getString("access_token");
+
+        return socketKey;
+    }
+
+    @Override
     public String getKoreaStockPrice(String FID_COND_MRKT_DIV_CODE, String FID_INPUT_ISCD) {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Content-Type", "application/json; charset=utf-8");
+//        headersMap.put("authorization", "Bearer your_access_token_here"); // 실제 토큰 값 사용
+        headersMap.put("appkey", AppKey); // 실제 AppKey 값 사용
+        headersMap.put("appsecret", SecretKey); // 실제 SecretKey 값 사용
+        headersMap.put("tr_id", "FHKST01010100"); // 예시 거래ID, 실제 ID로 변경
+
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("FID_COND_MRKT_DIV_CODE", FID_COND_MRKT_DIV_CODE); // 예시 값, 실제 데이터로 변경
+        queryParams.put("FID_INPUT_ISCD", FID_INPUT_ISCD);   // 예시 값, 실제 데이터로 변경
+
+        String url = "/uapi/domestic-stock/v1/quotations/inquire-price";
+
+        String response = getApiRequest(url, headersMap, queryParams);
+
         return "";
     }
 
     @Override
     public String getNasdaqStockPrice(String SYMB) {
-        return "";
-    }
+        String accessKey = getAccessKey();
 
-    @Override
-    public String getKoreaRealtimeStock(String tr_key) {
-        return "";
-    }
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Content-Type", "application/json; charset=utf-8");
+        headersMap.put("authorization", "Bearer " + accessKey); // 실제 토큰 값 사용
+        headersMap.put("appkey", AppKey); // 실제 AppKey 값 사용
+        headersMap.put("appsecret", SecretKey); // 실제 SecretKey 값 사용
+        headersMap.put("tr_id", "HHDFS00000300"); // 예시 거래ID, 실제 ID로 변경
 
-    @Override
-    public String getNasdaqRealtimeStock(String tr_key) {
-        return "";
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("AUTH", ""); // 예시 값, 실제 데이터로 변경
+        queryParams.put("EXCD", "NAS"); // 예시 값, 실제 데이터로 변경
+        queryParams.put("SYMB", SYMB);   // 예시 값, 실제 데이터로 변경
+
+        String url = "/uapi/overseas-price/v1/quotations/price";
+
+        String response = getApiRequest(url, headersMap, queryParams);
+
+        System.out.println(response);
+
+        return response;
     }
 
     @Override

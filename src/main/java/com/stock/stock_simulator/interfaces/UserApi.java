@@ -10,4 +10,5 @@ public interface UserApi {
     public List<Stock> getUserHoldingStocks(String token);
     public void createUser(User user);
     public void updateUser(User user);
+    public String getAccessKey();
 }
