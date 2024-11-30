@@ -1,7 +1,15 @@
 package com.stock.stock_simulator.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
 public class Stock {
-    private String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
     //    티커
     private String symbol;
     //    풀 네임
@@ -29,11 +37,11 @@ public class Stock {
         this.type = type;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

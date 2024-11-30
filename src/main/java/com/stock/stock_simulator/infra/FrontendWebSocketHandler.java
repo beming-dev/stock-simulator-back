@@ -2,7 +2,9 @@ package com.stock.stock_simulator.infra;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stock.stock_simulator.entity.Stock;
 import com.stock.stock_simulator.event.WebSocketEvent;
+import com.stock.stock_simulator.interfaces.StockRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -11,6 +13,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -20,9 +23,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class FrontendWebSocketHandler extends TextWebSocketHandler {
     private final Map<String, Set<WebSocketSession>> subscriptions = new ConcurrentHashMap<>();
     private final ApplicationEventPublisher eventPublisher;
+    private final StockRepository stockRepository;
 
-    public FrontendWebSocketHandler(ApplicationEventPublisher eventPublisher) {
+    public FrontendWebSocketHandler(ApplicationEventPublisher eventPublisher, StockRepository stockRepository) {
         this.eventPublisher = eventPublisher;
+        this.stockRepository = stockRepository;
     }
 
 
@@ -49,8 +54,27 @@ public class FrontendWebSocketHandler extends TextWebSocketHandler {
             // 각 키의 값 추출
             String type = rootNode.get("type").asText();
             String trType = rootNode.get("tr_type").asText();
-            String trKey = rootNode.get("tr_key").asText();
-            String trId = rootNode.get("tr_id").asText();
+            String symbol = rootNode.get("symbol").asText(); //symbol
+            String rq_type = rootNode.get("rq_type").asText();
+            String trId;
+            String trKey;
+
+            Stock stockData = stockRepository.findBySymbol(symbol);
+            if(stockData == null) throw new Exception("Invalid symbol: " + symbol);
+
+            switch(rq_type.toLowerCase()) {
+                case "current":
+                    if(Objects.equals(stockData.getCountry(), "NAS")){
+                        trId = "HDFSCNT0";
+                        trKey="DNAS" + symbol;
+                    }else{
+                        trId = "H0STCNT0";
+                        trKey=symbol;
+                    }
+                    break;
+                default:
+                    throw new Exception("Invalid rq_type: " + rq_type);
+            }
 
             // 추가 로직
             // 예: 특정 조건에 따라 작업 수행
