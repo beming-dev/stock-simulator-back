@@ -28,6 +28,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.sameOrigin()) // iframe 같은 출처 허용
+                )
                 .authorizeHttpRequests(auth -> auth
 //                        .requestMatchers("/api/oauth/**").permitAll()  // 변경된 부분
                         .requestMatchers("/**").permitAll()  // 변경된 부분

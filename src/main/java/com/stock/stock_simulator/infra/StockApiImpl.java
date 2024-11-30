@@ -1,6 +1,9 @@
 package com.stock.stock_simulator.infra;
 
+import com.stock.stock_simulator.entity.Token;
+import com.stock.stock_simulator.interfaces.KeyRepository;
 import com.stock.stock_simulator.interfaces.StockApiInterface;
+import com.stock.stock_simulator.service.TokenService;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -11,15 +14,21 @@ import java.util.Map;
 
 @Component
 public class StockApiImpl implements StockApiInterface {
+    private final KeyRepository keyRepository;
     private String AppKey;
     private String SecretKey;
+    public TokenService tokenService;
 
     public StockApiImpl(
             @Value("${kinvest.appkey}") String appKey,
-            @Value("${kinvest.secretkey}") String secretKey
+            @Value("${kinvest.secretkey}") String secretKey,
+            KeyRepository keyRepository,
+            TokenService tokenService
     ) {
+        this.tokenService = tokenService;
         AppKey = appKey;
         SecretKey = secretKey;
+        this.keyRepository = keyRepository;
     }
 
     private String postApiRequest(String uri, Object requestBody, Map<String, String> headersMap){
@@ -77,20 +86,38 @@ public class StockApiImpl implements StockApiInterface {
 
     @Override
     public String getAccessKey() {
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put("Content-Type", "application/json");
+        Token token = tokenService.getAccessToken();
 
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("grant_type", "client_credentials");
-        requestBody.put("appkey", AppKey);
-        requestBody.put("appsecret", SecretKey);
+        if(token!=null && !TokenService.isTokenExpired(token.getExpires())){
+            return token.getToken();
+        }else{
 
-        String response = postApiRequest("/oauth2/tokenP", requestBody, headersMap);
+            //요청 헤더
+            Map<String, String> headersMap = new HashMap<>();
+            headersMap.put("Content-Type", "application/json");
 
-        JSONObject obj = new JSONObject(response);
-        String socketKey = obj.getString("access_token");
+            //요청 바디
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("grant_type", "client_credentials");
+            requestBody.put("appkey", AppKey);
+            requestBody.put("appsecret", SecretKey);
 
-        return socketKey;
+            String response = postApiRequest("/oauth2/tokenP", requestBody, headersMap);
+
+            //파싱 및 db에 저장
+            JSONObject obj = new JSONObject(response);
+            String accessToken = obj.getString("access_token");
+            String expires = obj.getString("access_token_token_expired");
+
+            Token newToken = new Token();
+            newToken.setToken(accessToken);
+            newToken.setExpires(expires);
+            newToken.setType("access_token");
+
+            keyRepository.save(newToken);
+            
+            return accessToken;
+        }
     }
 
     @Override

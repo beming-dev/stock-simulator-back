@@ -1,17 +1,24 @@
 package com.stock.stock_simulator.entity;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "Users")
 public class User {
-    private String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String gId;
     private String won;
     private String nickname;
     private String provider;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
