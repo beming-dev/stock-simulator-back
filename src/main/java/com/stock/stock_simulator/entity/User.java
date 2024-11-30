@@ -9,8 +9,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String gId;
-    private String won;
+    private String gid;
+    private Long won;
     private String nickname;
     private String provider;
 
@@ -22,19 +22,19 @@ public class User {
         this.id = id;
     }
 
-    public String getgId() {
-        return gId;
+    public String getGid() {
+        return gid;
     }
 
-    public void setgId(String gId) {
-        this.gId = gId;
+    public void setGid(String gId) {
+        this.gid = gId;
     }
 
-    public String getWon() {
+    public Long getWon() {
         return won;
     }
 
-    public void setWon(String won) {
+    public void setWon(Long won) {
         this.won = won;
     }
 
@@ -58,7 +58,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "id='" + id + '\'' +
-                ", gId='" + gId + '\'' +
+                ", gId='" + gid + '\'' +
                 ", won='" + won + '\'' +
                 ", nickname='" + nickname + '\'' +
                 ", provider='" + provider + '\'' +

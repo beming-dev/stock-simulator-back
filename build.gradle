@@ -22,9 +22,9 @@ dependencies {
 	implementation 'com.microsoft.playwright:playwright:1.37.0'
 	// Apache POI
 	implementation 'org.apache.poi:poi-ooxml:5.2.3'
+
 	//OAuth2.0
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	runtimeOnly 'com.h2database:h2' // 또는 사용하는 DB 드라이버
 
 	//JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
@@ -42,6 +42,8 @@ dependencies {
 	//json
 	implementation 'org.json:json:20240303'
 	implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
 
 	//websocket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
@@ -55,7 +57,6 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

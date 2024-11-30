@@ -1,6 +1,7 @@
 package com.stock.stock_simulator.controller;
 
 import com.stock.stock_simulator.service.JwtService;
+import com.stock.stock_simulator.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
@@ -20,9 +21,11 @@ import static java.lang.System.getenv;
 @RequestMapping("/api/oauth")
 public class OAuthController {
     private final JwtService jwtService;
+    private final UserService userService;
 
-    public OAuthController(JwtService jwtService) {
+    public OAuthController(JwtService jwtService, UserService userService) {
         this.jwtService = jwtService;
+        this.userService = userService;
     }
 
     @GetMapping("/google")
@@ -63,6 +66,8 @@ public class OAuthController {
         String email = (String) userInfo.get("email");
         String name = (String) userInfo.get("name");
         String id = (String) userInfo.get("id");
+
+        userService.upsertUser(id, name, "google");
 
         // Generate JWT token
         String jwtToken = jwtService.generateToken(id, email, name);

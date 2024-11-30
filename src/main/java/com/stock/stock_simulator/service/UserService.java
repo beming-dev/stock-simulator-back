@@ -14,7 +14,14 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User getUserInfo(String id){
-        return this.userRepository.findById(id);
+    public User upsertUser(String gid, String nickname, String provider){
+        User user = userRepository.findByGid(gid);
+        if(user == null) user = new User();
+
+        user.setGid(gid);
+        user.setNickname(nickname);
+        user.setProvider(provider);
+        user.setWon(1000000000L);
+        return userRepository.save(user);
     }
 }
