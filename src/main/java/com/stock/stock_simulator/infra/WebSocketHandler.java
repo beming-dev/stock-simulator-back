@@ -95,8 +95,15 @@ public class WebSocketHandler extends TextWebSocketHandler implements Applicatio
 
         String[] stockInfo = payload.split("\\^");
 
-        if (frontendWebSocketHandler != null) {
-            frontendWebSocketHandler.broadcastToTargetGroup(payload);
+        if(stockInfo.length >=4) {
+            String[] headerInfo = stockInfo[0].split("\\|");
+
+            String trId = headerInfo[1]; // 메시지에서 추출한 tr_id
+            String trKey = headerInfo[3]; // 메시지에서 추출한 tr_key
+
+            if (frontendWebSocketHandler != null) {
+                frontendWebSocketHandler.broadcastToSubscribers(trId, trKey, payload);
+            }
         }
     }
 

@@ -3,9 +3,31 @@ package com.stock.stock_simulator.entity;
 public class Stock {
     private String id;
     //    티커
-    private String ticker;
-    //    티커
+    private String symbol;
+    //    풀 네임
     private String name;
+
+    //J:주식, ETF, ETN
+    private String type;
+
+    // 상장된 곳, KOS, NAS
+    private String country;
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public String getId() {
         return id;
@@ -15,12 +37,12 @@ public class Stock {
         this.id = id;
     }
 
-    public String getTicker() {
-        return ticker;
+    public String getSymbol() {
+        return symbol;
     }
 
-    public void setTicker(String ticker) {
-        this.ticker = ticker;
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 
     public String getName() {
@@ -35,8 +57,10 @@ public class Stock {
     public String toString() {
         return "Stock{" +
                 "id='" + id + '\'' +
-                ", ticker='" + ticker + '\'' +
+                ", symbol='" + symbol + '\'' +
                 ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                ", country='" + country + '\'' +
                 '}';
     }
 }

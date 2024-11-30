@@ -10,11 +10,15 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 @Component
 public class FrontendWebSocketHandler extends TextWebSocketHandler {
-    private final CopyOnWriteArrayList<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
+    private final Map<String, Set<WebSocketSession>> subscriptions = new ConcurrentHashMap<>();
     private final ApplicationEventPublisher eventPublisher;
 
     public FrontendWebSocketHandler(ApplicationEventPublisher eventPublisher) {
@@ -24,13 +28,12 @@ public class FrontendWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        sessions.add(session);
         System.out.println("Frontend WebSocket Connected: " + session.getId());
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        sessions.remove(session);
+        subscriptions.values().forEach(sessions -> sessions.remove(session));
         System.out.println("Frontend WebSocket Disconnected: " + session.getId());
     }
 
@@ -52,7 +55,12 @@ public class FrontendWebSocketHandler extends TextWebSocketHandler {
             // 추가 로직
             // 예: 특정 조건에 따라 작업 수행
             if ("subscribe".equals(type)) {
-                sessions.add(session);
+                String subscriptionKey = trId + "|" + trKey;
+
+                // 중복 요청 확인
+                subscriptions.computeIfAbsent(subscriptionKey, k -> new CopyOnWriteArraySet<>()).add(session);
+                System.out.println("User Subscribed: " + session.getId() + " to " + subscriptionKey);
+
                 System.out.println("User Subscribed: " + session.getId());
             }
             eventPublisher.publishEvent(new WebSocketEvent(this, trId, trKey, trType));
@@ -64,15 +72,20 @@ public class FrontendWebSocketHandler extends TextWebSocketHandler {
 
     }
 
-    public void broadcastToTargetGroup(String message) {
-        sessions.forEach(session -> {
-            try {
-                if (session.isOpen()) {
-                    session.sendMessage(new TextMessage(message));
+    public void broadcastToSubscribers(String trId, String trKey, String message) {
+        String subscriptionKey = trId + "|" + trKey;
+        Set<WebSocketSession> sessions = subscriptions.get(subscriptionKey);
+
+        if (sessions != null) {
+            sessions.forEach(session -> {
+                try {
+                    if (session.isOpen()) {
+                        session.sendMessage(new TextMessage(message));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+            });
+        }
     }
 }
