@@ -2,19 +2,27 @@ package com.stock.stock_simulator.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final String secretKey = "your-secret-key"; // 서명에 사용한 비밀키
+    private final Key secretKey;
+
+    public JwtAuthenticationFilter(@Value("${jwt.secret}") String keyString) {
+        this.secretKey = Keys.hmacShaKeyFor(keyString.getBytes(StandardCharsets.UTF_8));
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -33,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             // JWT 검증
             Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(secretKey.getBytes())
+                    .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();

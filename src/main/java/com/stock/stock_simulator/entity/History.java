@@ -1,13 +1,23 @@
 package com.stock.stock_simulator.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
 public class History {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
+
     public String userId;
-    public String ticker;
+    public String symbol;
 
     //type: sell or buy
     public String type;
     public Integer amount;
-    public Integer price;
+    public Double price;
 
     public String timestamp;
 
@@ -19,12 +29,12 @@ public class History {
         this.userId = userId;
     }
 
-    public String getTicker() {
-        return ticker;
+    public String getSymbol() {
+        return symbol;
     }
 
-    public void setTicker(String ticker) {
-        this.ticker = ticker;
+    public void setSymbol(String ticker) {
+        this.symbol = ticker;
     }
 
     public String getType() {
@@ -43,11 +53,11 @@ public class History {
         this.amount = amount;
     }
 
-    public Integer getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
@@ -63,7 +73,7 @@ public class History {
     public String toString() {
         return "History{" +
                 "userId='" + userId + '\'' +
-                ", ticker='" + ticker + '\'' +
+                ", ticker='" + symbol + '\'' +
                 ", type='" + type + '\'' +
                 ", amount=" + amount +
                 ", price=" + price +

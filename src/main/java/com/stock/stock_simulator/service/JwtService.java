@@ -3,8 +3,10 @@ package com.stock.stock_simulator.service;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
@@ -13,9 +15,8 @@ public class JwtService {
 
     private final Key secretKey;
 
-    // Secret key 생성 (강력한 키를 사용해야 함)
-    public JwtService() {
-        this.secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    public JwtService(@Value("${jwt.secret}") String keyString) {
+        this.secretKey = Keys.hmacShaKeyFor(keyString.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(String userId, String email, String name) {
