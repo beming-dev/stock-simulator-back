@@ -85,7 +85,7 @@ public class WebSocketHandler extends TextWebSocketHandler implements Applicatio
     @Override // 데이터 통신시
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
-//        System.out.println("Received Message: " + payload);
+        System.out.println("Received Message: " + payload);
 
         if (payload.contains("PINGPONG")) {
             System.out.println("Received PING. Sending PONG...");

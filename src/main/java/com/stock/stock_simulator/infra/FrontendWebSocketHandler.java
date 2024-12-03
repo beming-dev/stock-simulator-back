@@ -63,12 +63,13 @@ public class FrontendWebSocketHandler extends TextWebSocketHandler {
 
             switch(rq_type.toLowerCase()) {
                 case "current":
-                    if(Objects.equals(stockData.getCountry(), "NAS")){
-                        trId = "HDFSCNT0";
-                        trKey="DNAS" + symbol;
-                    }else{
+                    if(Objects.equals(stockData.getCountry(), "KSP")
+                            || Objects.equals(stockData.getCountry(), "KSD")){
                         trId = "H0STCNT0";
                         trKey=symbol;
+                    }else{
+                        trId = "HDFSCNT0";
+                        trKey="D" + stockData.getCountry() + symbol;
                     }
                     break;
                 default:

@@ -16,6 +16,8 @@ public class DataInitializer {
         crawlingService.fetchNewYorkSymbolData();
         crawlingService.fetchAmexSymbolData();
         crawlingService.fetchNasdaqSymbolData();
+        crawlingService.downloadKosdaqCsvWithOtp();
+        crawlingService.downloadKospiCsvWithOtp();
         return args -> {
             // 예시 데이터 삽입
 
