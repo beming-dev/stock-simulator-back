@@ -31,8 +31,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
 
+        String path = request.getRequestURI();
         // GET 요청은 토큰 없이도 허용
-        if ("GET".equalsIgnoreCase(request.getMethod())) {
+        if ("GET".equalsIgnoreCase(request.getMethod()) || path.startsWith("/h2-console")) {
             filterChain.doFilter(request, response);
             return;
         }

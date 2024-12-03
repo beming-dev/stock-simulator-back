@@ -21,6 +21,8 @@ public class SecurityConfig {
         firewall.setAllowUrlEncodedPercent(true); // 퍼센트 인코딩 허용
         firewall.setAllowBackSlash(true);        // 백슬래시 허용
         firewall.setAllowSemicolon(true);        // 세미콜론 허용
+        firewall.setAllowUrlEncodedSlash(true);  // URL 인코딩된 슬래시 허용
+        firewall.setAllowUrlEncodedDoubleSlash(true); // URL 인코딩된 더블 슬래시 허용
         return firewall;
     }
     
@@ -32,7 +34,7 @@ public class SecurityConfig {
                         .frameOptions(frameOptions -> frameOptions.sameOrigin()) // iframe 같은 출처 허용
                 )
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/api/oauth/**").permitAll()  // 변경된 부분
+                        .requestMatchers("/h2-console/**").permitAll() // H2 Console 경로 허용
                         .requestMatchers("/**").permitAll()  // 변경된 부분
                         .anyRequest().authenticated()
                 )

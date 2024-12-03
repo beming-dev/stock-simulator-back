@@ -4,6 +4,7 @@ import com.stock.stock_simulator.entity.History;
 import com.stock.stock_simulator.entity.Holding;
 import com.stock.stock_simulator.interfaces.HistoryRepository;
 import com.stock.stock_simulator.interfaces.HoldingRepository;
+import com.stock.stock_simulator.interfaces.StockRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.autoconfigure.http.codec.CodecsAutoConfiguration;
 import org.springframework.stereotype.Service;
@@ -14,13 +15,15 @@ import java.util.Date;
 public class StockService {
     private final HoldingRepository holdingRepository;
     private final HistoryRepository historyRepository;
+    private final StockRepository stockRepository;
     private final HttpServletRequest request;
     private final CodecsAutoConfiguration codecsAutoConfiguration;
 
 
-    public StockService(HoldingRepository holdingRepository, HistoryRepository historyRepository, HttpServletRequest request, CodecsAutoConfiguration codecsAutoConfiguration) {
+    public StockService(HoldingRepository holdingRepository, HistoryRepository historyRepository, StockRepository stockRepository, HttpServletRequest request, CodecsAutoConfiguration codecsAutoConfiguration) {
         this.holdingRepository = holdingRepository;
         this.historyRepository = historyRepository;
+        this.stockRepository = stockRepository;
         this.request = request;
         this.codecsAutoConfiguration = codecsAutoConfiguration;
     }

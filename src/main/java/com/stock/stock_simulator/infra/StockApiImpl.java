@@ -148,8 +148,8 @@ public class StockApiImpl implements StockApiInterface {
         return "";
     }
 
-    @Override
-    public String getNasdaqStockPrice(String SYMB) {
+
+    public String getNasdaqStockPrice(String SYMB, String country) {
         String accessKey = getAccessKey();
 
         Map<String, String> headersMap = new HashMap<>();
@@ -161,7 +161,7 @@ public class StockApiImpl implements StockApiInterface {
 
         Map<String, Object> queryParams = new HashMap<>();
         queryParams.put("AUTH", ""); // 예시 값, 실제 데이터로 변경
-        queryParams.put("EXCD", "NAS"); // 예시 값, 실제 데이터로 변경
+        queryParams.put("EXCD", country); // 예시 값, 실제 데이터로 변경
         queryParams.put("SYMB", SYMB);   // 예시 값, 실제 데이터로 변경
 
         String url = "/uapi/overseas-price/v1/quotations/price";
@@ -171,7 +171,7 @@ public class StockApiImpl implements StockApiInterface {
         return response;
     }
 
-    public String getNasdaqStockPrice2(String SYMB) {
+    public String getNasdaqStockPrice2(String SYMB, String country) {
         String accessKey = getAccessKey();
 
         Map<String, String> headersMap = new HashMap<>();
@@ -183,7 +183,7 @@ public class StockApiImpl implements StockApiInterface {
 
         Map<String, Object> queryParams = new HashMap<>();
         queryParams.put("AUTH", "");
-        queryParams.put("EXCD", "NAS");
+        queryParams.put("EXCD", country);
         queryParams.put("SYMB", SYMB);
         queryParams.put("GUBN", "0");
         queryParams.put("BYMD", "");
@@ -211,11 +211,15 @@ public class StockApiImpl implements StockApiInterface {
         Stock stockData = stockRepository.findBySymbol(symbol);
         if(stockData == null) throw new Exception("Stock not found");
 
-        if(Objects.equals(stockData.getCountry(), "NAS")){
+        String stockCountry = stockData.getCountry();
+        if(Objects.equals(stockCountry, "NAS")
+            ||Objects.equals(stockCountry, "NYS")
+            ||Objects.equals(stockCountry, "AMS")
+        ){
             JsonObject transformedJson = new JsonObject();
 
-            String res1 = getNasdaqStockPrice(symbol);
-            String res2 = getNasdaqStockPrice2(symbol);
+            String res1 = getNasdaqStockPrice(symbol, stockCountry);
+            String res2 = getNasdaqStockPrice2(symbol, stockCountry);
 
             //customizing
             JsonObject rootObject1 = JsonParser.parseString(res1).getAsJsonObject();
@@ -234,7 +238,7 @@ public class StockApiImpl implements StockApiInterface {
 
             return transformedJson.toString();
 
-        }else if(Objects.equals(stockData.getCountry(), "KOS")){
+        }else if(Objects.equals(stockData.getCountry(), "KSD") || Objects.equals(stockData.getCountry(), "KSP")){
             JsonObject transformedJson = new JsonObject();
 
             String res1 = getKoreaStockPrice("J", symbol);

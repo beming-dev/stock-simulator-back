@@ -10,16 +10,29 @@ public class Stock {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-    //    티커
-    private String symbol;
-    //    풀 네임
-    private String name;
 
-    //J:주식, ETF, ETN
-    private String type;
+    private String symbol;      //티커
+    private String name;        //    풀 네임
+    private String type= "J";   //J:주식, ETF, ETN
+    private String country;     // 상장된 곳, KOS, NAS
+    private String sector="";
+    private String industry="";
 
-    // 상장된 곳, KOS, NAS
-    private String country;
+    public String getSector() {
+        return sector;
+    }
+
+    public void setSector(String sector) {
+        this.sector = sector;
+    }
+
+    public String getIndustry() {
+        return industry;
+    }
+
+    public void setIndustry(String industry) {
+        this.industry = industry;
+    }
 
     public String getCountry() {
         return country;
@@ -64,11 +77,13 @@ public class Stock {
     @Override
     public String toString() {
         return "Stock{" +
-                "id='" + id + '\'' +
+                "id=" + id +
                 ", symbol='" + symbol + '\'' +
                 ", name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 ", country='" + country + '\'' +
+                ", sector='" + sector + '\'' +
+                ", industry='" + industry + '\'' +
                 '}';
     }
 }

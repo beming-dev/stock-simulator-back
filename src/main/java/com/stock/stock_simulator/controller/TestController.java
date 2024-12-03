@@ -1,41 +1,45 @@
 package com.stock.stock_simulator.controller;
 
+import com.stock.stock_simulator.service.CrawlingService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
+@RequestMapping("test")
 public class TestController {
-    @MessageMapping("/stock") // 클라이언트에서 메시지를 보낼 경로
-    @SendTo("/topic/stock")    // 클라이언트가 구독할 경로
-    public YourResponse handleSubscription(YourRequest request) {
-        System.out.println("Received subscription request: " + request.getTopic());
+    private final CrawlingService crawlingService;
 
-        // 서버에서 처리 후 응답 생성
-        return new YourResponse("Message to topic: " + request.getTopic());
-    }
-}
-
-class YourRequest {
-    private String topic;
-
-    public String getTopic() {
-        return topic;
+    public TestController(CrawlingService crawlingService) {
+        this.crawlingService = crawlingService;
     }
 
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
-}
+    @GetMapping("crawler")
+    @ResponseBody
+    public String handleSubscription() {
+        this.crawlingService.fetchNasdaqSymbolData();
+//        this.crawlingService.fetchAmexSymbolData();
+        this.crawlingService.fetchNewYorkSymbolData();
 
-class YourResponse {
-    private String message;
-
-    public YourResponse(String message) {
-        this.message = message;
+        return "complete";
     }
 
-    public String getMessage() {
-        return message;
+    @GetMapping("kospi")
+    @ResponseBody
+    public String getKospidata() {
+        this.crawlingService.downloadKospiCsvWithOtp();
+
+        return "complete";
+    }
+
+    @GetMapping("kosdaq")
+    @ResponseBody
+    public String getKosdaqdata() {
+        this.crawlingService.downloadKosdaqCsvWithOtp();
+
+        return "complete";
     }
 }
