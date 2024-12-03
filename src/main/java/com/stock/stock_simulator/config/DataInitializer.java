@@ -20,8 +20,8 @@ public class DataInitializer {
             // 예시 데이터 삽입
 
             Token token = new Token();
-            token.setToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImIwYjU1M2NjLTY4ZWYtNDRlYy1iNmI5LTkxMDAyYTRhZmQyYyIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTczMzAxODgyMiwiaWF0IjoxNzMyOTMyNDIyLCJqdGkiOiJQU3NTeDJ5MjBZR2tlMzNpeVluZ3A0aHJyc3czU1cxVHdCVE4ifQ.vfdppFQF9vF6V3b7dEfI5d46Te4och4hF3Mh1aLXkL0Jv8_JH6o8T2e9XseO2RvXPq6b1hVIvqg8oCVkSZp5Yg");
-            token.setExpires("2024-12-01 11:07:02");
+            token.setToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImQ4ZDVlZDUzLTY2ZGItNDMxMy1iN2IyLTEwZWQxMGRhZGRkMSIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTczMzI3ODE5MCwiaWF0IjoxNzMzMTkxNzkwLCJqdGkiOiJQU3NTeDJ5MjBZR2tlMzNpeVluZ3A0aHJyc3czU1cxVHdCVE4ifQ.BKVmEdAb3O3J1wbK6BpDbLrwucH3CzLFDITiG3ddpi6Qi0X05WfAkI-LTvCOE7T19b1vn7iusDAabbao0K0QRQ");
+            token.setExpires("2024-12-04 11:07:02");
             token.setType("access_token");
             tokenRepository.save(token);
 

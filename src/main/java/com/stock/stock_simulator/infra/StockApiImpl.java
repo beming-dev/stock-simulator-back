@@ -130,9 +130,12 @@ public class StockApiImpl implements StockApiInterface {
 
     @Override
     public String getKoreaStockPrice(String FID_COND_MRKT_DIV_CODE, String FID_INPUT_ISCD) {
+        String accessKey = getAccessKey();
+//        System.out.println(accessKey);
+
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Content-Type", "application/json; charset=utf-8");
-//        headersMap.put("authorization", "Bearer your_access_token_here"); // 실제 토큰 값 사용
+        headersMap.put("authorization", "Bearer " + accessKey); // 실제 토큰 값 사용
         headersMap.put("appkey", AppKey); // 실제 AppKey 값 사용
         headersMap.put("appsecret", SecretKey); // 실제 SecretKey 값 사용
         headersMap.put("tr_id", "FHKST01010100"); // 예시 거래ID, 실제 ID로 변경
@@ -145,7 +148,7 @@ public class StockApiImpl implements StockApiInterface {
 
         String response = getApiRequest(url, headersMap, queryParams);
 
-        return "";
+        return response;
     }
 
 
@@ -246,13 +249,15 @@ public class StockApiImpl implements StockApiInterface {
             JsonObject rootObject1 = JsonParser.parseString(res1).getAsJsonObject();
             JsonObject outputObject1 = rootObject1.getAsJsonObject("output");
 
+            System.out.println(outputObject1.toString());
+
             transformedJson.addProperty("name", stockData.getName());
             transformedJson.addProperty("symbol", stockData.getSymbol());
             transformedJson.addProperty("country", stockData.getCountry());
             transformedJson.addProperty("type", stockData.getType());
             transformedJson.addProperty("price", outputObject1.get("stck_prpr").getAsString());
             transformedJson.addProperty("high", outputObject1.get("stck_hgpr").getAsString());
-            transformedJson.addProperty("low", outputObject1.get("-stck_lwpr").getAsString());
+            transformedJson.addProperty("low", outputObject1.get("stck_lwpr").getAsString());
 
             return transformedJson.toString();
         }
