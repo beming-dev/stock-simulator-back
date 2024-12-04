@@ -29,6 +29,29 @@ public class FrontendWebSocketHandler extends TextWebSocketHandler {
         this.stockRepository = stockRepository;
     }
 
+    public void removeSession(WebSocketSession session, String trId, String trKey) {
+        String subscriptionKey = trId + "|" + trKey;
+        Set<WebSocketSession> sessions = subscriptions.get(subscriptionKey);
+
+        if (sessions != null) {
+            // session 삭제
+            if (sessions.remove(session)) {
+                System.out.println("Removed session: " + session.getId() + " from subscription: " + subscriptionKey);
+
+                System.out.println(sessions.size());
+                // sessions가 비어 있으면 subscriptions에서 subscriptionKey 삭제 (옵션)
+                if (sessions.isEmpty()) {
+                    subscriptions.remove(subscriptionKey);
+                    eventPublisher.publishEvent(new WebSocketEvent(this, trId, trKey, "2"));
+                }
+            } else {
+                System.out.println("Session not found in subscription: " + subscriptionKey);
+            }
+        } else {
+            System.out.println("No sessions found for subscription key: " + subscriptionKey);
+        }
+    }
+
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -76,8 +99,8 @@ public class FrontendWebSocketHandler extends TextWebSocketHandler {
                     throw new Exception("Invalid rq_type: " + rq_type);
             }
 
+            System.out.println(type + symbol);
             // 추가 로직
-            // 예: 특정 조건에 따라 작업 수행
             if ("subscribe".equals(type)) {
                 String subscriptionKey = trId + "|" + trKey;
 
@@ -85,9 +108,10 @@ public class FrontendWebSocketHandler extends TextWebSocketHandler {
                 subscriptions.computeIfAbsent(subscriptionKey, k -> new CopyOnWriteArraySet<>()).add(session);
                 System.out.println("User Subscribed: " + session.getId() + " to " + subscriptionKey);
 
-                System.out.println("User Subscribed: " + session.getId());
+                eventPublisher.publishEvent(new WebSocketEvent(this, trId, trKey, trType));
+            }else if ("unsubscribe".equals(type)) {
+                removeSession(session, trId, trKey);
             }
-            eventPublisher.publishEvent(new WebSocketEvent(this, trId, trKey, trType));
 
         } catch (Exception e) {
             System.err.println("Failed to parse JSON payload: " + e.getMessage());
