@@ -61,51 +61,20 @@ public class CrawlingService {
     }
 
     public void fetchNasdaqSymbolData(){
-//        Integer pageSize = 67;
-        Integer pageSize = 5;
+        Integer pageSize = 67;
         for (int i = 1; i <= pageSize; i++) {
             List<JSONObject> dataList = fetchData("nasdaq", i);
 
-            dataList.forEach(data -> {
-                String symbol = data.getString("symbol");
-                String name = data.getString("hname");
-                String sector = data.getString("sector_nm");
-                String industry = data.getString("industry_nm");
-
-                Stock stock = new Stock();
-                stock.setSymbol(symbol);
-                stock.setName(name);
-                stock.setCountry("NAS");
-                stock.setSector(sector);
-                stock.setIndustry(industry);
-
-                stockRepository.save(stock);
-            });
-
+            pushAmericaStockData(dataList, "NAS");
         }
     }
 
     public void fetchNewYorkSymbolData(){
-//        Integer pageSize = 40;
-        Integer pageSize = 5;
+        Integer pageSize = 40;
         for (int i = 1; i <= pageSize; i++) {
             List<JSONObject> dataList = fetchData("nyse", i);
 
-            dataList.forEach(data -> {
-                String symbol = data.getString("symbol");
-                String name = data.getString("hname");
-                String sector = data.getString("sector_nm");
-                String industry = data.getString("industry_nm");
-
-                Stock stock = new Stock();
-                stock.setSymbol(symbol);
-                stock.setName(name);
-                stock.setCountry("NYS");
-                stock.setSector(sector);
-                stock.setIndustry(industry);
-
-                stockRepository.save(stock);
-            });
+            pushAmericaStockData(dataList, "NYS");
 
         }
     }
@@ -115,23 +84,27 @@ public class CrawlingService {
         for (int i = 1; i <= pageSize; i++) {
             List<JSONObject> dataList = fetchData("amex", i);
 
-            dataList.forEach(data -> {
-                String symbol = data.getString("symbol");
-                String name = data.getString("hname");
-                String sector = data.getString("sector_nm");
-                String industry = data.getString("industry_nm");
-
-                Stock stock = new Stock();
-                stock.setSymbol(symbol);
-                stock.setName(name);
-                stock.setCountry("AMS");
-                stock.setSector(sector);
-                stock.setIndustry(industry);
-
-                stockRepository.save(stock);
-            });
-
+            pushAmericaStockData(dataList, "AMS");
         }
+    }
+
+    private void pushAmericaStockData(List<JSONObject> dataList, String country){
+        dataList.forEach(data -> {
+            String symbol = data.getString("symbol");
+            String name = data.getString("hname");
+            String sector = data.getString("sector_nm");
+            String industry = data.getString("industry_nm");
+
+            Stock stock = stockRepository.findBySymbol(symbol)
+                    .orElse(new Stock());
+            stock.setSymbol(symbol);
+            stock.setName(name);
+            stock.setCountry("AMS");
+            stock.setSector(sector);
+            stock.setIndustry(industry);
+
+            stockRepository.save(stock);
+        });
     }
 
     private void downloadCsv(String downloadUrl, String otpCode, Path outputPath) throws IOException {
@@ -188,7 +161,8 @@ public class CrawlingService {
                 String country = values[2].replace("\"", "").trim();
                 String sector = values[3].replace("\"", "").trim();
 
-                Stock newStock = new Stock();
+                Stock newStock = stockRepository.findBySymbol(symbol)
+                                .orElse(new Stock());
                 newStock.setSymbol(symbol);
                 newStock.setName(name);
                 if(country.equals("KOSDAQ")){

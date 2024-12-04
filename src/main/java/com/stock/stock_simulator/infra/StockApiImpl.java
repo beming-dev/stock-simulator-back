@@ -211,8 +211,8 @@ public class StockApiImpl implements StockApiInterface {
 
     @Override
     public String getCurrentStockPrice(String symbol) throws Exception {
-        Stock stockData = stockRepository.findBySymbol(symbol);
-        if(stockData == null) throw new Exception("Stock not found");
+        Stock stockData = stockRepository.findBySymbol(symbol)
+                .orElseThrow(() -> new Exception("Invalid symbol: " + symbol));
 
         String stockCountry = stockData.getCountry();
         if(Objects.equals(stockCountry, "NAS")

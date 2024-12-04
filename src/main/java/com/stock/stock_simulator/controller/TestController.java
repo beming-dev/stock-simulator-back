@@ -21,7 +21,7 @@ public class TestController {
     @ResponseBody
     public String handleSubscription() {
         this.crawlingService.fetchNasdaqSymbolData();
-//        this.crawlingService.fetchAmexSymbolData();
+        this.crawlingService.fetchAmexSymbolData();
         this.crawlingService.fetchNewYorkSymbolData();
 
         return "complete";

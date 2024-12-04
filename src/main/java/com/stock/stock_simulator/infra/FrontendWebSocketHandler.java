@@ -58,8 +58,8 @@ public class FrontendWebSocketHandler extends TextWebSocketHandler {
             String trId;
             String trKey;
 
-            Stock stockData = stockRepository.findBySymbol(symbol);
-            if(stockData == null) throw new Exception("Invalid symbol: " + symbol);
+            Stock stockData = stockRepository.findBySymbol(symbol)
+                    .orElseThrow(() -> new Exception("Invalid symbol: " + symbol));
 
             switch(rq_type.toLowerCase()) {
                 case "current":

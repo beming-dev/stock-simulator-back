@@ -1,9 +1,6 @@
 package com.stock.stock_simulator.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class Stock {
@@ -11,6 +8,7 @@ public class Stock {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
+    @Column(unique = true)
     private String symbol;      //티커
     private String name;        //    풀 네임
     private String type= "J";   //J:주식, ETF, ETN
