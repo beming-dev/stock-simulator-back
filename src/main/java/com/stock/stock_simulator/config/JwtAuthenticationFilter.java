@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
         // GET 요청은 토큰 없이도 허용
-        if ("GET".equalsIgnoreCase(request.getMethod()) || path.startsWith("/h2-console")) {
+        if ("GET".equalsIgnoreCase(request.getMethod()) || path.startsWith("/h2-console") || path.startsWith("/ws")) {
             filterChain.doFilter(request, response);
             return;
         }
