@@ -34,6 +34,11 @@ public class SecurityConfig {
                         .frameOptions(frameOptions -> frameOptions.sameOrigin()) // iframe 같은 출처 허용
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/ws/**").permitAll()
+                        .anyRequest().authenticated()
+
+                )
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/h2-console/**").permitAll() // H2 Console 경로 허용
                         .requestMatchers("/**").permitAll()  // 변경된 부분
                         .anyRequest().authenticated()
