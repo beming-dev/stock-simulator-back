@@ -19,6 +19,16 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(frontendWebSocketHandler, "/ws") // WebSocket 엔드포인트
-                .setAllowedOriginPatterns("http://localhost:5173", "https://beming-stock.kro.kr");
+                .setAllowedOriginPatterns(
+                        "http://localhost:5173",
+                        "https://beming-stock.kro.kr",
+                        "http://beming-stock.kro.kr",
+                        "https://beming-stock-back.kro.kr",
+                        "http://beming-stock-back.kro.kr",
+                        "http://localhost:3000",
+                        "https://localhost:3000",
+                        "http://localhost:3001",
+                        "https://localhost:3001"
+                );
     }
 }
