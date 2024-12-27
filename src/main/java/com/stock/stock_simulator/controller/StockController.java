@@ -2,8 +2,8 @@ package com.stock.stock_simulator.controller;
 
 import com.stock.stock_simulator.DTO.StockOrderDto;
 import com.stock.stock_simulator.entity.History;
+import com.stock.stock_simulator.entity.Holding;
 import com.stock.stock_simulator.service.StockService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +18,8 @@ public class StockController {
     }
 
     @GetMapping("list")
-    public List<History> getStockList() {
-        return null;
+    public List<Holding> getStockList() {
+        return stockService.getStockList();
     }
 
     @GetMapping("history")

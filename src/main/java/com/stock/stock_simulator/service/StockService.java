@@ -6,10 +6,10 @@ import com.stock.stock_simulator.interfaces.HistoryRepository;
 import com.stock.stock_simulator.interfaces.HoldingRepository;
 import com.stock.stock_simulator.interfaces.StockRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.boot.autoconfigure.http.codec.CodecsAutoConfiguration;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class StockService {
@@ -17,31 +17,34 @@ public class StockService {
     private final HistoryRepository historyRepository;
     private final StockRepository stockRepository;
     private final HttpServletRequest request;
-    private final CodecsAutoConfiguration codecsAutoConfiguration;
 
 
-    public StockService(HoldingRepository holdingRepository, HistoryRepository historyRepository, StockRepository stockRepository, HttpServletRequest request, CodecsAutoConfiguration codecsAutoConfiguration) {
+    public StockService(HoldingRepository holdingRepository, HistoryRepository historyRepository, StockRepository stockRepository, HttpServletRequest request) {
         this.holdingRepository = holdingRepository;
         this.historyRepository = historyRepository;
         this.stockRepository = stockRepository;
         this.request = request;
-        this.codecsAutoConfiguration = codecsAutoConfiguration;
+    }
+
+    public List<Holding> getStockList(){
+        String gid = (String) request.getAttribute("gid");
+
+        return holdingRepository.findByUserId(gid);
     }
 
     public void handleBuy(String symbol, Integer amount){
-        Holding holding = holdingRepository.findBySymbol(symbol);
-        if(holding ==null) holding = new Holding();
+        String gid = (String) request.getAttribute("gid");
 
-        System.out.println("buy");
+        Holding holding = holdingRepository.findBySymbolAndUserId(symbol, gid);
+        if(holding ==null) holding = new Holding();
 
         History history = new History();
 
         Double price = 10d;
-        String gid = (String) request.getAttribute("gid");
 
         Double currentAvg = holding.getAverage();
         Integer currentAmt = holding.getAmount();
-        Double newAvg = (currentAvg * currentAmt + amount * price) / currentAmt + amount;
+        Double newAvg = (currentAvg * currentAmt + amount * price) / (currentAmt + amount);
 
         holding.setSymbol(symbol);
         holding.setBuyPrice(price);
@@ -69,22 +72,27 @@ public class StockService {
 
         Double price = 10d;
 
-        Double currentAvg = holding.getAverage();
         Integer currentAmt = holding.getAmount();
+        Integer newAmt = currentAmt - amount;
 
-        holding.setSymbol(symbol);
-        holding.setBuyPrice(price);
-        holding.setAmount(Math.max(currentAmt - amount, 0));
-        holding.setUserId("");
+        System.out.println(newAmt);
 
-        history.setSymbol(symbol);
-        history.setAmount(amount);
-        history.setPrice(price);
-        history.setTimestamp(new Date().toString());
-        history.setType("sell");
-        history.setUserId(gid);
+        if(newAmt < 0) throw new RuntimeException("You have " + currentAmt + " stocks");
+        else if (newAmt == 0) {
+            holdingRepository.delete(holding);
+        } else{
+            holding.setAmount(Math.max(newAmt, 0));
 
-        holdingRepository.save(holding);
-        historyRepository.save(history);
+            history.setSymbol(symbol);
+            history.setAmount(amount);
+            history.setPrice(price);
+            history.setTimestamp(new Date().toString());
+            history.setType("sell");
+            history.setUserId(gid);
+
+            holdingRepository.save(holding);
+            historyRepository.save(history);
+        }
     }
 }
+ // Received Message: 0|HDFSCNT0|001|DNASAAPL^AAPL^4^20241227^20241227^070229^20241227^210229^258.6000^259.0200^258.4000^259.0200^3^0.0000^0.00^258.9600^259.2200^200^20^10^4629^1198097^2222^680^30.60^1

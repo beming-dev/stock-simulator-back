@@ -32,21 +32,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         String path = request.getRequestURI();
+
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
+
         // GET 요청은 토큰 없이도 허용
-        if ("GET".equalsIgnoreCase(request.getMethod()) || path.startsWith("/h2-console") || path.startsWith("/ws")) {
+        if (path.startsWith("/ws")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // Authorization 헤더가 없는 경우
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            // GET 요청은 토큰 없이도 허용
+            if ("GET".equalsIgnoreCase(request.getMethod()) || path.startsWith("/h2-console")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Missing or invalid Authorization header");
             return;
         }
-
         String token = authHeader.substring(7); // "Bearer " 제거
-
         try {
             // JWT 검증
             Claims claims = Jwts.parserBuilder()
