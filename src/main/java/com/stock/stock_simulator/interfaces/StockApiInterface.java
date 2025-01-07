@@ -11,4 +11,5 @@ public interface StockApiInterface {
     String getNasdaqTickData(String EXCD, String SYMB, String NMIN, String PINC, String NEXT, String NREC, String FILL, String KEYB);
 
     String getCurrentStockPrice(String symbol) throws Exception;
+    String getChartData(String symbol) throws Exception;
 }

@@ -21,4 +21,10 @@ public class StockApiController {
     public String getCurrentPrice(@RequestParam String SYMB) throws Exception {
         return stockApi.getCurrentStockPrice(SYMB);
     }
+
+    @GetMapping("/chartData")
+    @ResponseBody
+    public String getChartData(@RequestParam String SYMB) throws Exception {
+        return stockApi.getChartData(SYMB);
+    }
 }

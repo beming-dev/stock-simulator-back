@@ -3,12 +3,15 @@ package com.stock.stock_simulator.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "Stock", indexes = {
+        @Index(name="idx_symbol", columnList = "symbol")
+})
 public class Stock {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String symbol;      //티커
     private String name;        //    풀 네임
     private String type= "J";   //J:주식, ETF, ETN

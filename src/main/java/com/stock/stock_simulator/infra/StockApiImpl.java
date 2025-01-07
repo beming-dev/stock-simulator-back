@@ -1,6 +1,7 @@
 package com.stock.stock_simulator.infra;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.stock.stock_simulator.entity.Stock;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -215,6 +218,7 @@ public class StockApiImpl implements StockApiInterface {
                 .orElseThrow(() -> new Exception("Invalid symbol: " + symbol));
 
         String stockCountry = stockData.getCountry();
+
         if(Objects.equals(stockCountry, "NAS")
             ||Objects.equals(stockCountry, "NYS")
             ||Objects.equals(stockCountry, "AMS")
@@ -249,8 +253,6 @@ public class StockApiImpl implements StockApiInterface {
             JsonObject rootObject1 = JsonParser.parseString(res1).getAsJsonObject();
             JsonObject outputObject1 = rootObject1.getAsJsonObject("output");
 
-            System.out.println(outputObject1.toString());
-
             transformedJson.addProperty("name", stockData.getName());
             transformedJson.addProperty("symbol", stockData.getSymbol());
             transformedJson.addProperty("country", stockData.getCountry());
@@ -262,5 +264,65 @@ public class StockApiImpl implements StockApiInterface {
             return transformedJson.toString();
         }
         throw new Exception("Invalid stock data");
+    }
+
+    public String getKorChartData(String SYMB) {
+        String accessKey = getAccessKey();
+
+        LocalDateTime now = LocalDateTime.now();
+        // YYYYMMDD 형식
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        String date = now.format(dateFormatter);
+
+        // HHMMSS 형식
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmm");
+        String time = now.format(timeFormatter) + "00";
+
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Content-Type", "application/json; charset=utf-8");
+        headersMap.put("authorization", "Bearer " + accessKey); // 실제 토큰 값 사용
+        headersMap.put("appkey", AppKey); // 실제 AppKey 값 사용
+        headersMap.put("appsecret", SecretKey); // 실제 SecretKey 값 사용
+        headersMap.put("tr_id", "FHKST03010230");
+        headersMap.put("custyype", "P");
+
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("FID_COND_MRKT_DIV_CODE", "J");
+        queryParams.put("FID_INPUT_ISCD", SYMB);
+        queryParams.put("FID_INPUT_DATE_1", date);
+        queryParams.put("FID_INPUT_HOUR_1", time);
+        queryParams.put("FID_PW_DATA_INCU_YN", "Y");
+        queryParams.put("FID_FAKE_TICK_INCU_YN", "N");
+
+        String url = "/uapi/domestic-stock/v1/quotations/inquire-time-dailychartprice";
+
+        String response = getApiRequest(url, headersMap, queryParams);
+
+        return response;
+    }
+    @Override
+    public String getChartData(String symbol) throws Exception {
+        String res = getKorChartData(symbol);
+
+        JsonObject rootObject = JsonParser.parseString(res).getAsJsonObject();
+        JsonArray outputArray = rootObject.getAsJsonArray("output2");
+
+        JsonArray newArray = new JsonArray();
+
+        for (JsonElement element : outputArray) {
+            JsonObject obj = element.getAsJsonObject();
+
+            JsonObject newObj = new JsonObject();
+            newObj.addProperty("date", obj.get("stck_bsop_date").getAsString() + obj.get("stck_cntg_hour").getAsString());
+            newObj.addProperty("open", obj.get("stck_oprc").getAsString());
+            newObj.addProperty("close", obj.get("stck_prpr").getAsString());
+            newObj.addProperty("high", obj.get("stck_hgpr").getAsString());
+            newObj.addProperty("low", obj.get("stck_lwpr").getAsString());
+            newObj.addProperty("volume", obj.get("cntg_vol").getAsString());
+
+            newArray.add(newObj);
+        }
+
+        return newArray.toString();
     }
 }

@@ -1,5 +1,6 @@
 package com.stock.stock_simulator.controller;
 
+import com.stock.stock_simulator.DTO.LikeRequestDTO;
 import com.stock.stock_simulator.DTO.StockOrderDto;
 import com.stock.stock_simulator.entity.History;
 import com.stock.stock_simulator.entity.Holding;
@@ -49,4 +50,15 @@ public class StockController {
         stockService.handleSell(symbol, amount);
         return "";
     }
+
+    @PostMapping("/like")
+    @ResponseBody
+    public String setLike(
+            @RequestBody LikeRequestDTO likeRequest
+    ){
+        String symbol = likeRequest.getSymbol();
+        stockService.setLike(symbol);
+        return "";
+    }
+
 }

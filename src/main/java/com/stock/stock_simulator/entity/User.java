@@ -3,12 +3,15 @@ package com.stock.stock_simulator.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Users")
+@Table(name = "Users", indexes = {
+        @Index(name="idx_gid", columnList = "gid")
+})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String gid;
     private Long won;
     private String nickname;
