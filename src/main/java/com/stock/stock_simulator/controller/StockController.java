@@ -60,5 +60,4 @@ public class StockController {
         stockService.setLike(symbol);
         return "";
     }
-
 }

@@ -27,4 +27,10 @@ public class StockApiController {
     public String getChartData(@RequestParam String SYMB) throws Exception {
         return stockApi.getChartData(SYMB);
     }
+
+    @GetMapping("/mainList")
+    @ResponseBody
+    public String getMainList(){
+        return stockApi.getMainList();
+    }
 }

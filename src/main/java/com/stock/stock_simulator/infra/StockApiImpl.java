@@ -1,9 +1,6 @@
 package com.stock.stock_simulator.infra;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.stock.stock_simulator.entity.Stock;
 import com.stock.stock_simulator.entity.Token;
 import com.stock.stock_simulator.interfaces.TokenRepository;
@@ -17,9 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Component
 public class StockApiImpl implements StockApiInterface {
@@ -324,5 +319,119 @@ public class StockApiImpl implements StockApiInterface {
         }
 
         return newArray.toString();
+    }
+
+    @Override
+    public String getMainList() {
+        int count = 0;  // 항목 개수를 제한하기 위한 카운터
+        int maxCount = 5;
+
+        String korTopVolResponse = this.getKorTopVol();
+        String nasTopVolResponse = this.getNasTopVol();
+
+        JsonObject korTopObj = JsonParser.parseString(korTopVolResponse).getAsJsonObject();
+        JsonArray korTopArr = korTopObj.getAsJsonArray("output");
+        List<Map<String, Object>> newKorList = new ArrayList<>();
+
+        // 배열 순회
+        for (JsonElement element : korTopArr) {
+            if (count >= maxCount) break;  // 5개를 초과하면 종료
+            JsonObject obj = element.getAsJsonObject();
+
+            Map<String, Object> stockInfo = new HashMap<>();
+            stockInfo.put("symb", obj.get("mksc_shrn_iscd").getAsString());
+            stockInfo.put("name", obj.get("hts_kor_isnm").getAsString());
+            stockInfo.put("last", obj.get("stck_prpr").getAsString());
+            stockInfo.put("rate", obj.get("prdy_ctrt").getAsString());
+
+            // DTO 객체 생성 후 리스트에 추가
+            newKorList.add(stockInfo);
+            count++;
+        }
+
+        count = 0;
+        JsonObject nasTopObj = JsonParser.parseString(nasTopVolResponse).getAsJsonObject();
+        JsonArray nasTopArr = nasTopObj.getAsJsonArray("output2");
+        List<Map<String, Object>> newNasList = new ArrayList<>();
+
+        // 배열 순회
+        for (JsonElement element : nasTopArr) {
+            if (count >= maxCount) break;  // 5개를 초과하면 종료
+            JsonObject obj = element.getAsJsonObject();
+
+            Map<String, Object> stockInfo = new HashMap<>();
+            stockInfo.put("symb", obj.get("symb").getAsString());
+            stockInfo.put("name", obj.get("name").getAsString());
+            stockInfo.put("last", obj.get("last").getAsString());
+            stockInfo.put("rate", obj.get("rate").getAsString());
+
+            // DTO 객체 생성 후 리스트에 추가
+            newNasList.add(stockInfo);
+            count++;
+        }
+
+        Gson gson = new Gson();
+        JsonObject newJsonObject = new JsonObject();
+        newJsonObject.add("nas", gson.toJsonTree(newNasList));
+        newJsonObject.add("kor", gson.toJsonTree(newKorList));
+
+        return newJsonObject.toString();
+    }
+
+    private String getNasTopVol(){
+        String accessKey = getAccessKey();
+
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Content-Type", "application/json; charset=utf-8");
+        headersMap.put("authorization", "Bearer " + accessKey); // 실제 토큰 값 사용
+        headersMap.put("appkey", AppKey); // 실제 AppKey 값 사용
+        headersMap.put("appsecret", SecretKey); // 실제 SecretKey 값 사용
+        headersMap.put("tr_id", "HHDFS76310010");
+        headersMap.put("custtype", "P");
+
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("AUTH", "");
+        queryParams.put("EXCD", "NAS");
+        queryParams.put("NDAY", "3");
+        queryParams.put("PRC1", "10");
+        queryParams.put("PRC2", "10000000");
+        queryParams.put("VOL_RANG", "0");
+        queryParams.put("KEYB", "");
+
+        String url = "/uapi/overseas-stock/v1/ranking/trade-vol";
+
+        String response = getApiRequest(url, headersMap, queryParams);
+
+        return response;
+    }
+
+    private String getKorTopVol(){
+        String accessKey = getAccessKey();
+
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Content-Type", "application/json; charset=utf-8");
+        headersMap.put("authorization", "Bearer " + accessKey); // 실제 토큰 값 사용
+        headersMap.put("appkey", AppKey); // 실제 AppKey 값 사용
+        headersMap.put("appsecret", SecretKey); // 실제 SecretKey 값 사용
+        headersMap.put("tr_id", "FHPST01710000");
+
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("FID_COND_MRKT_DIV_CODE", "J");
+        queryParams.put("FID_COND_SCR_DIV_CODE", "20171");
+        queryParams.put("FID_INPUT_ISCD", "0000");
+        queryParams.put("FID_DIV_CLS_CODE", "0");
+        queryParams.put("FID_BLNG_CLS_CODE", "0");
+        queryParams.put("FID_TRGT_CLS_CODE", "111111111");
+        queryParams.put("FID_TRGT_EXLS_CLS_CODE", "000000");
+        queryParams.put("FID_INPUT_PRICE_1", "0");
+        queryParams.put("FID_INPUT_PRICE_2", "0");
+        queryParams.put("FID_VOL_CNT", "0");
+        queryParams.put("FID_INPUT_DATE_1", "0");
+
+        String url = "/uapi/domestic-stock/v1/quotations/volume-rank";
+
+        String response = getApiRequest(url, headersMap, queryParams);
+
+        return response;
     }
 }

@@ -12,4 +12,6 @@ public interface StockApiInterface {
 
     String getCurrentStockPrice(String symbol) throws Exception;
     String getChartData(String symbol) throws Exception;
+
+    String getMainList();
 }
