@@ -295,30 +295,91 @@ public class StockApiImpl implements StockApiInterface {
 
         return response;
     }
+
+    public String getNasChartData(String SYMB) throws Exception {
+        Optional<Stock> bySymbol = stockRepository.findBySymbol(SYMB);
+        if(!bySymbol.isPresent()){throw new Exception("no stock");}
+
+        Stock stock = bySymbol.get();
+
+        String accessKey = getAccessKey();
+
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Content-Type", "application/json; charset=utf-8");
+        headersMap.put("authorization", "Bearer " + accessKey); // 실제 토큰 값 사용
+        headersMap.put("appkey", AppKey); // 실제 AppKey 값 사용
+        headersMap.put("appsecret", SecretKey); // 실제 SecretKey 값 사용
+        headersMap.put("tr_id", "HHDFS76950200");
+
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("AUTH", "");
+        queryParams.put("EXCD", stock.getCountry());
+        queryParams.put("SYMB", SYMB);
+        queryParams.put("NMIN", "1");
+        queryParams.put("PINC", "1");
+        queryParams.put("NEXT", "");
+        queryParams.put("NREC", "120");
+        queryParams.put("FILL", "");
+        queryParams.put("KEYB", "");
+
+        String url = "/uapi/overseas-price/v1/quotations/inquire-time-itemchartprice";
+
+        String response = getApiRequest(url, headersMap, queryParams);
+
+        return response;
+    }
+
     @Override
     public String getChartData(String symbol) throws Exception {
-        String res = getKorChartData(symbol);
+        if(symbol.length() == 6){
+            //국내 주식
+            String res = getKorChartData(symbol);
 
-        JsonObject rootObject = JsonParser.parseString(res).getAsJsonObject();
-        JsonArray outputArray = rootObject.getAsJsonArray("output2");
+            JsonObject rootObject = JsonParser.parseString(res).getAsJsonObject();
+            JsonArray outputArray = rootObject.getAsJsonArray("output2");
 
-        JsonArray newArray = new JsonArray();
+            JsonArray newArray = new JsonArray();
 
-        for (JsonElement element : outputArray) {
-            JsonObject obj = element.getAsJsonObject();
+            for (JsonElement element : outputArray) {
+                JsonObject obj = element.getAsJsonObject();
 
-            JsonObject newObj = new JsonObject();
-            newObj.addProperty("date", obj.get("stck_bsop_date").getAsString() + obj.get("stck_cntg_hour").getAsString());
-            newObj.addProperty("open", obj.get("stck_oprc").getAsString());
-            newObj.addProperty("close", obj.get("stck_prpr").getAsString());
-            newObj.addProperty("high", obj.get("stck_hgpr").getAsString());
-            newObj.addProperty("low", obj.get("stck_lwpr").getAsString());
-            newObj.addProperty("volume", obj.get("cntg_vol").getAsString());
+                JsonObject newObj = new JsonObject();
+                newObj.addProperty("date", obj.get("stck_bsop_date").getAsString() + obj.get("stck_cntg_hour").getAsString());
+                newObj.addProperty("open", obj.get("stck_oprc").getAsString());
+                newObj.addProperty("close", obj.get("stck_prpr").getAsString());
+                newObj.addProperty("high", obj.get("stck_hgpr").getAsString());
+                newObj.addProperty("low", obj.get("stck_lwpr").getAsString());
+                newObj.addProperty("volume", obj.get("cntg_vol").getAsString());
 
-            newArray.add(newObj);
+                newArray.add(newObj);
+            }
+
+            return newArray.toString();
+        }else{
+            //해외 주식
+            String res = getNasChartData(symbol);
+
+            JsonObject rootObject = JsonParser.parseString(res).getAsJsonObject();
+            JsonArray outputArray = rootObject.getAsJsonArray("output2");
+
+            JsonArray newArray = new JsonArray();
+
+            for (JsonElement element : outputArray) {
+                JsonObject obj = element.getAsJsonObject();
+
+                JsonObject newObj = new JsonObject();
+                newObj.addProperty("date", obj.get("kymd").getAsString() + obj.get("khms").getAsString());
+                newObj.addProperty("open", obj.get("open").getAsString());
+                newObj.addProperty("close", obj.get("last").getAsString());
+                newObj.addProperty("high", obj.get("high").getAsString());
+                newObj.addProperty("low", obj.get("low").getAsString());
+                newObj.addProperty("volume", obj.get("evol").getAsString());
+
+                newArray.add(newObj);
+            }
+
+            return newArray.toString();
         }
-
-        return newArray.toString();
     }
 
     @Override
@@ -422,7 +483,7 @@ public class StockApiImpl implements StockApiInterface {
         queryParams.put("FID_DIV_CLS_CODE", "0");
         queryParams.put("FID_BLNG_CLS_CODE", "0");
         queryParams.put("FID_TRGT_CLS_CODE", "111111111");
-        queryParams.put("FID_TRGT_EXLS_CLS_CODE", "000000");
+        queryParams.put("FID_TRGT_EXLS_CLS_CODE", "1111111111");
         queryParams.put("FID_INPUT_PRICE_1", "0");
         queryParams.put("FID_INPUT_PRICE_2", "0");
         queryParams.put("FID_VOL_CNT", "0");
