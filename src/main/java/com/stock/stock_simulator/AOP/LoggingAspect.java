@@ -12,6 +12,6 @@ public class LoggingAspect {
             "&& !within(com.stock.stock_simulator.AOP..*) " +
             "&& !within(com.stock.stock_simulator.config.*)")
     public void logBefore(JoinPoint joinPoint){
-        System.out.println("메소드 호출 전: " + joinPoint.getSignature().getDeclaringTypeName() + " " + joinPoint.getSignature().getName());
+//        System.out.println("메소드 호출 전: " + joinPoint.getSignature().getDeclaringTypeName() + " " + joinPoint.getSignature().getName());
     }
 }
