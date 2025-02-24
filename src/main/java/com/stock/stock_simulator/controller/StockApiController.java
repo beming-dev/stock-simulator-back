@@ -30,7 +30,8 @@ public class StockApiController {
 
     @GetMapping("/mainList")
     @ResponseBody
-    public String getMainList(){
+    public String getMainList() throws Exception {
+//        throw new Exception("test error");
         return stockApi.getMainList();
     }
 }
