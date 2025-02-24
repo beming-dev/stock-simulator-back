@@ -1,6 +1,7 @@
 package com.stock.stock_simulator.infra;
 
 import com.google.gson.*;
+import com.stock.stock_simulator.annotation.LogExecutionTime;
 import com.stock.stock_simulator.entity.Stock;
 import com.stock.stock_simulator.entity.Token;
 import com.stock.stock_simulator.interfaces.TokenRepository;
@@ -383,6 +384,7 @@ public class StockApiImpl implements StockApiInterface {
     }
 
     @Override
+    @LogExecutionTime
     public String getMainList() {
         int count = 0;  // 항목 개수를 제한하기 위한 카운터
         int maxCount = 5;
