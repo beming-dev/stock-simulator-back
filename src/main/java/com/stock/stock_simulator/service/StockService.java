@@ -8,6 +8,7 @@ import com.stock.stock_simulator.interfaces.LikeRepository;
 import com.stock.stock_simulator.interfaces.StockRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -29,12 +30,14 @@ public class StockService {
         this.request = request;
     }
 
+    @Transactional(readOnly = true)
     public List<Holding> getStockList(){
         String gid = (String) request.getAttribute("gid");
 
         return holdingRepository.findByUserId(gid);
     }
 
+    @Transactional
     public void handleBuy(String symbol, Integer amount){
         String gid = (String) request.getAttribute("gid");
 
@@ -65,6 +68,8 @@ public class StockService {
         holdingRepository.save(holding);
         historyRepository.save(history);
     }
+
+    @Transactional
     public void handleSell(String symbol, Integer amount){
         String gid = (String) request.getAttribute("gid");
 
