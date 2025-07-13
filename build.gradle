@@ -9,7 +9,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(23)
 	}
 }
 
@@ -50,9 +50,6 @@ dependencies {
 
 	//database
 	runtimeOnly 'com.h2database:h2'
-
-	//redis
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 	//csv
 	implementation 'com.opencsv:opencsv:5.8'
