@@ -39,9 +39,11 @@ jobs:
     - name: Update Kustomize image tag
       run: |
         cd infra/base
-        yq e '.images[] 
-          |= select(.name=="beming/'${{ github.repository }}'") 
-          .newTag = "'${{ github.sha }}'"' -i kustomization.yaml
+        IMAGE="beming/stock-simulator-back"
+        SHA=${{ github.sha }}
+        kustomize edit set image ${IMAGE}=${IMAGE}:${SHA}
+
+        git diff
 
     - name: Commit & Push infra changes
       run: |
