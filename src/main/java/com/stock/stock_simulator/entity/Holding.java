@@ -67,6 +67,21 @@ public class Holding {
         this.average = average;
     }
 
+
+    public void handleBuy(String gid, String symbol, Integer amount, Double price){
+        Double newAvg = ((this.average * this.amount) + (amount * price)) / (this.amount + amount);
+
+        this.symbol = symbol;
+        this.buyPrice = price;
+        this.average = newAvg;
+        this.amount += amount;
+        this.userId = gid;
+    }
+
+    public void handleSell(Integer amount){
+        this.amount = Math.max(amount, 0);
+    }
+
     @Override
     public String toString() {
         return "Holding{" +

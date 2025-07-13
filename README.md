@@ -1,3 +1,3 @@
 # Stock Simulator
 
-cicdtest
+cicd

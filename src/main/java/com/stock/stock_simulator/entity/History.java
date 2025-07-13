@@ -5,6 +5,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import java.util.Date;
+
 @Entity
 public class History {
     @Id
@@ -67,6 +69,24 @@ public class History {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public void handleBuy(String gid, String symbol, Integer amount, Double price){
+        this.symbol = symbol;
+        this.userId = gid;
+        this.amount = amount;
+        this.price = price;
+        this.timestamp = new Date().toString();
+        this.type = "buy";
+    }
+
+    public void handleSell(String gid, String symbol, Integer amount, Double price){
+        this.symbol = symbol;
+        this.userId = gid;
+        this.amount = amount;
+        this.price = price;
+        this.timestamp = new Date().toString();
+        this.type = "sell";
     }
 
     @Override

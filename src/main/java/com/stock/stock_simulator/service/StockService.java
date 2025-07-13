@@ -43,27 +43,12 @@ public class StockService {
 
         Holding holding = holdingRepository.findBySymbolAndUserId(symbol, gid);
         if(holding ==null) holding = new Holding();
-
         History history = new History();
 
         Double price = 10d;
 
-        Double currentAvg = holding.getAverage();
-        Integer currentAmt = holding.getAmount();
-        Double newAvg = (currentAvg * currentAmt + amount * price) / (currentAmt + amount);
-
-        holding.setSymbol(symbol);
-        holding.setBuyPrice(price);
-        holding.setAmount(currentAmt + amount);
-        holding.setAverage(newAvg);
-        holding.setUserId(gid);
-
-        history.setSymbol(symbol);
-        history.setAmount(amount);
-        history.setPrice(price);
-        history.setTimestamp(new Date().toString());
-        history.setType("buy");
-        history.setUserId(gid);
+        holding.handleBuy(gid, symbol, amount, price);
+        history.handleBuy(gid, symbol, amount, price);
 
         holdingRepository.save(holding);
         historyRepository.save(history);
@@ -75,7 +60,6 @@ public class StockService {
 
         Holding holding = holdingRepository.findBySymbolAndUserId(symbol, gid);
         if(holding == null) return;
-
         History history = new History();
 
         Double price = 10d;
@@ -83,20 +67,12 @@ public class StockService {
         Integer currentAmt = holding.getAmount();
         Integer newAmt = currentAmt - amount;
 
-        System.out.println(newAmt);
-
         if(newAmt < 0) throw new RuntimeException("You have " + currentAmt + " stocks");
         else if (newAmt == 0) {
             holdingRepository.delete(holding);
         } else{
-            holding.setAmount(Math.max(newAmt, 0));
-
-            history.setSymbol(symbol);
-            history.setAmount(amount);
-            history.setPrice(price);
-            history.setTimestamp(new Date().toString());
-            history.setType("sell");
-            history.setUserId(gid);
+            holding.handleSell(newAmt);
+            history.handleSell(gid, symbol, amount, price);
 
             holdingRepository.save(holding);
             historyRepository.save(history);

@@ -57,6 +57,12 @@ public class User {
         this.provider = provider;
     }
 
+    public void updateDefaultUser(String gid, String nickname, String provider){
+        this.setGid(gid);
+        this.setNickname(nickname);
+        this.setProvider(provider);
+        this.setWon(1000000000L);
+    }
     @Override
     public String toString() {
         return "User{" +

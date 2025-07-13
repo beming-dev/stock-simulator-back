@@ -20,10 +20,8 @@ public class UserService {
         User user = userRepository.findByGid(gid);
         if(user == null) user = new User();
 
-        user.setGid(gid);
-        user.setNickname(nickname);
-        user.setProvider(provider);
-        user.setWon(1000000000L);
+        user.updateDefaultUser(gid, nickname, provider);
+
         return userRepository.save(user);
     }
 }
