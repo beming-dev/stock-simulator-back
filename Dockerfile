@@ -1,19 +1,12 @@
-# 1단계: 빌드 단계
-FROM bellsoft/liberica-openjdk-alpine:17 AS builder
+FROM gradle:8.10.2-jdk17 AS builder
 
 WORKDIR /app
-
 COPY . .
-RUN chmod +x ./gradlew
-RUN ./gradlew clean build --no-daemon
+# wrapper 대신 gradle 커맨드를 바로 쓰거나, wrapper도 그대로 사용 가능
+RUN gradle clean build --no-daemon --stacktrace --info
 
-# 2단계: 실행 단계
 FROM bellsoft/liberica-openjdk-alpine:17
-
 WORKDIR /app
-
 COPY --from=builder /app/build/libs/*.jar app.jar
-
 EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]
