@@ -37,7 +37,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "https://beming-stock.kro.kr",
-                "http://spring-frontend.frontend-namespace:80"
+                "http://spring-frontend.frontend-namespace:80",
+                "http://13.125.26.26:30081"
         ));
         configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용

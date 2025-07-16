@@ -29,7 +29,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
                         "https://localhost:3000",
                         "http://localhost:3001",
                         "https://localhost:3001",
-                        "http://spring-frontend.frontend-namespace:80"
+                        "http://spring-frontend.frontend-namespace:80",
+                        "http://13.125.26.26:30081"
                 );
     }
 }
