@@ -34,7 +34,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();// 허용할 origin
-        configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://beming-stock.kro.kr"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "https://beming-stock.kro.kr",
+                "http://spring-frontend.frontend-namespace:80"
+        ));
         configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 쿠키 및 인증 정보 허용
