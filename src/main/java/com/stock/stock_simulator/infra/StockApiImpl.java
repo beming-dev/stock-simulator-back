@@ -94,37 +94,70 @@ public class StockApiImpl implements StockApiInterface {
     @Override
     public String getAccessKey() {
         Token token = tokenService.getAccessToken();
+        System.out.println("[DEBUG] 기존 Token 조회 결과: " + token);
 
-        if(token!=null && !TokenService.isTokenExpired(token.getExpires())){
-            return token.getToken();
-        }else{
-
-            //요청 헤더
-            Map<String, String> headersMap = new HashMap<>();
-            headersMap.put("Content-Type", "application/json");
-
-            //요청 바디
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("grant_type", "client_credentials");
-            requestBody.put("appkey", AppKey);
-            requestBody.put("appsecret", SecretKey);
-
-            String response = postApiRequest("/oauth2/tokenP", requestBody, headersMap);
-
-            //파싱 및 db에 저장
-            JSONObject obj = new JSONObject(response);
-            String accessToken = obj.getString("access_token");
-            String expires = obj.getString("access_token_token_expired");
-
-            Token newToken = new Token();
-            newToken.setToken(accessToken);
-            newToken.setExpires(expires);
-            newToken.setType("access_token");
-
-            tokenRepository.save(newToken);
-            
-            return accessToken;
+        if (token != null) {
+            System.out.println("[DEBUG] token.getToken(): " + token.getToken());
+            System.out.println("[DEBUG] token.getExpires(): " + token.getExpires());
         }
+
+        if (token != null && !TokenService.isTokenExpired(token.getExpires())) {
+            System.out.println("[DEBUG] 기존 토큰 유효 → 반환: " + token.getToken());
+            return token.getToken();
+        } else {
+            System.out.println("[DEBUG] 토큰 없음 또는 만료됨 → 신규 발급 로직 진입");
+        }
+
+        // 요청 헤더
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Content-Type", "application/json");
+        System.out.println("[DEBUG] 요청 헤더: " + headersMap);
+
+        // 요청 바디
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("grant_type", "client_credentials");
+        requestBody.put("appkey", AppKey);
+        requestBody.put("appsecret", SecretKey);
+        System.out.println("[DEBUG] 요청 바디: " + requestBody);
+
+        String response;
+        try {
+            response = postApiRequest("/oauth2/tokenP", requestBody, headersMap);
+            System.out.println("[DEBUG] 외부 응답(response): " + response);
+        } catch (Exception e) {
+            System.out.println("[ERROR] postApiRequest 호출 중 예외: ");
+            e.printStackTrace();
+            throw e;
+        }
+
+        // JSON 파싱
+        JSONObject obj;
+        try {
+            obj = new JSONObject(response);
+        } catch (Exception e) {
+            System.out.println("[ERROR] JSON 파싱 실패. 응답 내용: " + response);
+            e.printStackTrace();
+            throw e;
+        }
+
+        String accessToken = obj.optString("access_token", null);
+        String expires     = obj.optString("access_token_token_expired", null);
+        System.out.println("[DEBUG] 파싱된 accessToken=" + accessToken + ", expires=" + expires);
+
+        if (accessToken == null || expires == null) {
+            System.out.println("[ERROR] 응답에 필수 정보 누락(access_token 또는 expires)");
+            throw new IllegalStateException("토큰 발급 응답에 필수 정보가 없습니다");
+        }
+
+        // DB 저장
+        Token newToken = new Token();
+        newToken.setToken(accessToken);
+        newToken.setExpires(expires);
+        newToken.setType("access_token");
+        tokenRepository.save(newToken);
+        System.out.println("[DEBUG] 새로운 토큰 DB 저장 완료: " + newToken);
+
+        return accessToken;
     }
 
     @Override
