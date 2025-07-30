@@ -32,7 +32,7 @@ public class WebSocketHandler extends TextWebSocketHandler implements Applicatio
         String tr_type = event.getTr_type();
 
         try {
-            sendMessage(tr_id, tr_key, tr_type);
+            this.sendMessage(tr_id, tr_key, tr_type);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
