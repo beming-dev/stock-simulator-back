@@ -36,6 +36,8 @@ public class StockController {
         String symbol = stockOrderDto.getSymbol();
         Integer amount = stockOrderDto.getAmount();
 
+        System.out.println(symbol);
+        System.out.println(amount);
         stockService.handleBuy(symbol, amount);
         return "";
     }
