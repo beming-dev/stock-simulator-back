@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -298,7 +299,9 @@ public class StockApiImpl implements StockApiInterface {
     public String getKorChartData(String SYMB) {
         String accessKey = getAccessKey();
 
-        LocalDateTime now = LocalDateTime.now();
+        ZoneId koreaZone = ZoneId.of("Asia/Seoul");
+        LocalDateTime now = LocalDateTime.now(koreaZone);
+
         // YYYYMMDD 형식
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         String date = now.format(dateFormatter);
