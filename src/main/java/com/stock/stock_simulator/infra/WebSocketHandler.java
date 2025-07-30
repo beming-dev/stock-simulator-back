@@ -46,7 +46,7 @@ public class WebSocketHandler extends TextWebSocketHandler implements Applicatio
     }
 
     private void sendMessage(String tr_id, String tr_key, String tr_type) throws Exception {
-        if (session == null || !session.isOpen()) {
+        if (this.session == null || !this.session.isOpen()) {
             System.out.println("WebSocket session is not open or is null.");
             return;
         }
