@@ -25,7 +25,7 @@ public class WebSocketExternalConfig {
         webSocketHandler.setWebSocketKey(stockApi.getWebSocketKey());
 
         // 2) URL 은 실제 사용하는 엔드포인트로 바꿔주세요
-        String wsUrl = "ws://ops.koreainvestment.com:21000";
+        String wsUrl = "wss://ops.koreainvestment.com:21000";
 
         // 3) ReconnectingWebSocketConnectionManager 생성
         ReconnectingWebSocketConnectionManager mgr =

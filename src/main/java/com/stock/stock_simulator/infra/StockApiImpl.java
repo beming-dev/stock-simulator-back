@@ -333,7 +333,7 @@ public class StockApiImpl implements StockApiInterface {
         return response;
     }
 
-    public String getNasChartData(String SYMB) throws Exception {
+    public String  getNasChartData(String SYMB) throws Exception {
         Optional<Stock> bySymbol = stockRepository.findBySymbol(SYMB);
         if(!bySymbol.isPresent()){throw new Exception("no stock");}
 
