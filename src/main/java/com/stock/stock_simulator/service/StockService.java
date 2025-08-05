@@ -1,11 +1,11 @@
 package com.stock.stock_simulator.service;
 
+import com.stock.stock_simulator.constant.StockConstant;
 import com.stock.stock_simulator.entity.History;
 import com.stock.stock_simulator.entity.Holding;
-import com.stock.stock_simulator.interfaces.HistoryRepository;
-import com.stock.stock_simulator.interfaces.HoldingRepository;
-import com.stock.stock_simulator.interfaces.LikeRepository;
-import com.stock.stock_simulator.interfaces.StockRepository;
+import com.stock.stock_simulator.entity.User;
+import com.stock.stock_simulator.interfaces.*;
+import com.stock.stock_simulator.utils.StockUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,15 +18,24 @@ public class StockService {
     private final HoldingRepository holdingRepository;
     private final HistoryRepository historyRepository;
     private final LikeRepository likeRepository;
+    private final UserRepository userRepository;
     private final StockRepository stockRepository;
     private final HttpServletRequest request;
 
 
-    public StockService(HoldingRepository holdingRepository, HistoryRepository historyRepository, LikeRepository likeRepository, StockRepository stockRepository, HttpServletRequest request) {
+    public StockService(
+            UserRepository userRepository,
+            HoldingRepository holdingRepository,
+            HistoryRepository historyRepository,
+            LikeRepository likeRepository,
+            StockRepository stockRepository,
+            HttpServletRequest request
+    ) {
         this.holdingRepository = holdingRepository;
         this.historyRepository = historyRepository;
         this.likeRepository = likeRepository;
         this.stockRepository = stockRepository;
+        this.userRepository = userRepository;
         this.request = request;
     }
 
@@ -48,6 +57,12 @@ public class StockService {
         holding.handleBuy(gid, symbol, amount, price);
         history.handleBuy(gid, symbol, amount, price);
 
+        User user = userRepository.findByGid(gid);
+        String country = StockUtil.koEnBySymbol(symbol);
+
+        user.updateAsset(country, -price * amount);
+
+        userRepository.save(user);
         holdingRepository.save(holding);
         historyRepository.save(history);
     }
@@ -73,6 +88,15 @@ public class StockService {
             holdingRepository.save(holding);
             historyRepository.save(history);
         }
+
+        // update user asset
+        Double priceDiff = (holding.buyPrice - price) * amount;
+        User user = userRepository.findByGid(gid);
+
+        String country = StockUtil.koEnBySymbol(symbol);
+        user.updateAsset(country, priceDiff);
+
+        userRepository.save(user);
     }
 
     public void setLike(String symbol){
