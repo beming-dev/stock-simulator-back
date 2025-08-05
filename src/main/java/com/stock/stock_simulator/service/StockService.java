@@ -38,14 +38,12 @@ public class StockService {
     }
 
     @Transactional
-    public void handleBuy(String symbol, Integer amount){
+    public void handleBuy(String symbol, Integer amount, Double price) {
         String gid = (String) request.getAttribute("gid");
 
         Holding holding = holdingRepository.findBySymbolAndUserId(symbol, gid);
         if(holding ==null) holding = new Holding();
         History history = new History();
-
-        Double price = 10d;
 
         holding.handleBuy(gid, symbol, amount, price);
         history.handleBuy(gid, symbol, amount, price);
@@ -55,14 +53,12 @@ public class StockService {
     }
 
     @Transactional
-    public void handleSell(String symbol, Integer amount){
+    public void handleSell(String symbol, Integer amount, Double price) {
         String gid = (String) request.getAttribute("gid");
 
         Holding holding = holdingRepository.findBySymbolAndUserId(symbol, gid);
         if(holding == null) return;
         History history = new History();
-
-        Double price = 10d;
 
         Integer currentAmt = holding.getAmount();
         Integer newAmt = currentAmt - amount;

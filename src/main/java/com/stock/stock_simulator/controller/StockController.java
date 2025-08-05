@@ -35,10 +35,9 @@ public class StockController {
     ) {
         String symbol = stockOrderDto.getSymbol();
         Integer amount = stockOrderDto.getAmount();
+        Double price = stockOrderDto.getPrice();
 
-        System.out.println(symbol);
-        System.out.println(amount);
-        stockService.handleBuy(symbol, amount);
+        stockService.handleBuy(symbol, amount, price);
         return "";
     }
     @PostMapping("/sell")
@@ -48,8 +47,9 @@ public class StockController {
     ) {
         String symbol = stockOrderDto.getSymbol();
         Integer amount = stockOrderDto.getAmount();
+        Double price = stockOrderDto.getPrice();
 
-        stockService.handleSell(symbol, amount);
+        stockService.handleSell(symbol, amount, price);
         return "";
     }
 
