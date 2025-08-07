@@ -19,6 +19,7 @@ public class StockApiController {
     @GetMapping("/currentPrice")
     @ResponseBody
     public String getCurrentPrice(@RequestParam String SYMB) throws Exception {
+        System.out.println(stockApi.getCurrentStockPrice(SYMB));
         return stockApi.getCurrentStockPrice(SYMB);
     }
 

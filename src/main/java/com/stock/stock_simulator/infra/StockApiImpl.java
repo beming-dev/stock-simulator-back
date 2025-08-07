@@ -242,8 +242,8 @@ public class StockApiImpl implements StockApiInterface {
         return "";
     }
 
-    @Override
-    public String getCurrentStockPrice(String symbol) throws Exception {
+
+    public String getStockPriceForSingle(String symbol) throws Exception {
         Stock stockData = stockRepository.findBySymbol(symbol)
                 .orElseThrow(() -> new Exception("Invalid symbol: " + symbol));
 
@@ -294,6 +294,29 @@ public class StockApiImpl implements StockApiInterface {
             return transformedJson.toString();
         }
         throw new Exception("Invalid stock data");
+    }
+
+    public String getCurrentStockPrice(String symbols) throws Exception {
+        if (symbols.contains(",")) {
+            // 공백이 섞여 있을 수 있으니 trim
+            String[] arr = Arrays.stream(symbols.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .toArray(String[]::new);
+
+            JsonArray results = new JsonArray();
+            for (String sym : arr) {
+                String jsonString = this.getStockPriceForSingle(sym);
+
+                JsonElement element = JsonParser
+                        .parseString(jsonString);
+
+                results.add(element);
+            }
+            return results.toString();
+        }
+
+        return getStockPriceForSingle(symbols).toString();
     }
 
     public String getKorChartData(String SYMB) {
