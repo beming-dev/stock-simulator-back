@@ -1,8 +1,9 @@
 package com.stock.stock_simulator.service;
 
-import com.stock.stock_simulator.constant.StockConstant;
+import com.stock.stock_simulator.DTO.HoldingDto;
 import com.stock.stock_simulator.entity.History;
 import com.stock.stock_simulator.entity.Holding;
+import com.stock.stock_simulator.entity.Stock;
 import com.stock.stock_simulator.entity.User;
 import com.stock.stock_simulator.interfaces.*;
 import com.stock.stock_simulator.utils.StockUtil;
@@ -10,8 +11,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class StockService {
@@ -40,10 +43,35 @@ public class StockService {
     }
 
     @Transactional(readOnly = true)
-    public List<Holding> getStockList(){
+    public List<HoldingDto> getStockList(){
         String gid = (String) request.getAttribute("gid");
 
-        return holdingRepository.findByUserId(gid);
+        List<Holding> holdings =  holdingRepository.findByUserId(gid);
+        List<String> symbols = holdings.stream()
+                .map(Holding::getSymbol)
+                .distinct()
+                .toList();
+        if (symbols.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Stock> stocks = stockRepository.findBySymbolIn(symbols);
+        // 4) symbol → name 맵으로 변환
+        Map<String, String> nameMap = stocks.stream()
+                .collect(Collectors.toMap(Stock::getSymbol, Stock::getName));
+
+        List<HoldingDto> dtos = holdings.stream()
+                .map(h -> new HoldingDto(
+                        h.getId(),
+                        h.getAmount(),
+                        h.getAverage(),
+                        h.getBuyPrice(),
+                        h.getSymbol(),
+                        nameMap.get(h.getSymbol())
+                ))
+                .collect(Collectors.toList());
+
+        return dtos;
     }
 
     @Transactional

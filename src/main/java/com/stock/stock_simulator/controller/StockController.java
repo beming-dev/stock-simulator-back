@@ -1,5 +1,6 @@
 package com.stock.stock_simulator.controller;
 
+import com.stock.stock_simulator.DTO.HoldingDto;
 import com.stock.stock_simulator.DTO.LikeRequestDTO;
 import com.stock.stock_simulator.DTO.StockOrderDto;
 import com.stock.stock_simulator.entity.History;
@@ -19,7 +20,7 @@ public class StockController {
     }
 
     @GetMapping("list")
-    public List<Holding> getStockList() {
+    public List<HoldingDto> getStockList() {
         return stockService.getStockList();
     }
 

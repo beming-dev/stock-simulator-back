@@ -17,8 +17,8 @@ public class User {
 
     @Column(unique = true, nullable = false)
     private String gid;
-    private Long won;
-    private Long dollars;
+    private Long won = 1_000_000_000L;
+    private Long dollars = 1_000_000L;
     private String nickname;
     private String provider;
 
