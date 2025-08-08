@@ -5,6 +5,7 @@ import com.stock.stock_simulator.DTO.LikeRequestDTO;
 import com.stock.stock_simulator.DTO.StockOrderDto;
 import com.stock.stock_simulator.entity.History;
 import com.stock.stock_simulator.entity.Holding;
+import com.stock.stock_simulator.entity.Stock;
 import com.stock.stock_simulator.service.StockService;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,16 @@ public class StockController {
 
     public StockController(StockService stockService) {
         this.stockService = stockService;
+    }
+
+    @GetMapping("search")
+    public List<Stock> searchStock(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam String page,
+            @RequestParam String country) {
+        Integer intPage = Integer.parseInt(page);
+
+        return stockService.searchStock(intPage, keyword, country);
     }
 
     @GetMapping("item")

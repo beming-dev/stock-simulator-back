@@ -8,6 +8,8 @@ import com.stock.stock_simulator.entity.User;
 import com.stock.stock_simulator.interfaces.*;
 import com.stock.stock_simulator.utils.StockUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,11 +44,30 @@ public class StockService {
         this.request = request;
     }
 
+    public List<Stock> searchStock(Integer page, String keyword, String country) {
+        boolean isKo = "KO".equalsIgnoreCase(country);
+        PageRequest pageable = PageRequest.of(page, 50);
+
+        if(!keyword.isEmpty()){
+            List<Stock> stockList = stockRepository
+                    .findBySymbolContainingIgnoreCaseOrNameContainingIgnoreCase(
+                            keyword.trim(), keyword.trim()
+                    );
+            return stockList;
+        }else{
+            List<String> countries = isKo
+                    ? List.of("KSD","KSP")
+                    : List.of("NAS","NYS","AMS");
+
+            Page<Stock> stockList =  stockRepository.findAllByCountryIn(countries, pageable);
+            return stockList.getContent();
+        }
+    }
+
     public HoldingDto getStockItem(String symbol) {
         String gid = (String) this.request.getAttribute("gid");
 
         Holding holding =  holdingRepository.findBySymbolAndUserId(symbol, gid);
-
 
         if(holding == null) {
             return null;
