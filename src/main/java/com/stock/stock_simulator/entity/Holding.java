@@ -69,7 +69,8 @@ public class Holding {
 
 
     public void handleBuy(String gid, String symbol, Integer amount, Double price){
-        Double newAvg = ((this.average * this.amount) + (amount * price)) / (this.amount + amount);
+        double rawAvg = ((this.average * this.amount) + (amount * price)) / (this.amount + amount);
+        double newAvg = Math.round(rawAvg * 100.0) / 100.0;
 
         this.symbol = symbol;
         this.buyPrice = price;

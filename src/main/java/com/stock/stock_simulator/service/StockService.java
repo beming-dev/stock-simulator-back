@@ -42,6 +42,25 @@ public class StockService {
         this.request = request;
     }
 
+    public HoldingDto getStockItem(String symbol) {
+        String gid = (String) this.request.getAttribute("gid");
+
+        Holding holding =  holdingRepository.findBySymbolAndUserId(symbol, gid);
+
+
+        if(holding == null) {
+            return null;
+        }
+
+        return new HoldingDto(
+                holding.getId(),
+                holding.getAmount(),
+                holding.getAverage(),
+                holding.getBuyPrice(),
+                holding.getSymbol()
+        );
+    }
+
     @Transactional(readOnly = true)
     public List<HoldingDto> getStockList(){
         String gid = (String) request.getAttribute("gid");
@@ -75,11 +94,11 @@ public class StockService {
     }
 
     @Transactional
-    public void handleBuy(String symbol, Integer amount, Double price) {
+    public HoldingDto handleBuy(String symbol, Integer amount, Double price) {
         String gid = (String) request.getAttribute("gid");
 
         Holding holding = holdingRepository.findBySymbolAndUserId(symbol, gid);
-        if(holding ==null) holding = new Holding();
+        if(holding == null) holding = new Holding();
         History history = new History();
 
         holding.handleBuy(gid, symbol, amount, price);
@@ -93,28 +112,31 @@ public class StockService {
         userRepository.save(user);
         holdingRepository.save(holding);
         historyRepository.save(history);
+
+        return new HoldingDto(
+                holding.getId(),
+                holding.getAmount(),
+                holding.getAverage(),
+                holding.getBuyPrice(),
+                holding.getSymbol()
+        );
     }
 
     @Transactional
-    public void handleSell(String symbol, Integer amount, Double price) {
+    public HoldingDto handleSell(String symbol, Integer amount, Double price) {
         String gid = (String) request.getAttribute("gid");
 
         Holding holding = holdingRepository.findBySymbolAndUserId(symbol, gid);
-        if(holding == null) return;
+        if(holding == null) return null;
         History history = new History();
 
         Integer currentAmt = holding.getAmount();
         Integer newAmt = currentAmt - amount;
 
         if(newAmt < 0) throw new RuntimeException("You have " + currentAmt + " stocks");
-        else if (newAmt == 0) {
-            holdingRepository.delete(holding);
-        } else{
+        else{
             holding.handleSell(newAmt);
             history.handleSell(gid, symbol, amount, price);
-
-            holdingRepository.save(holding);
-            historyRepository.save(history);
         }
 
         // update user asset
@@ -124,7 +146,22 @@ public class StockService {
         String country = StockUtil.koEnBySymbol(symbol);
         user.updateAsset(country, priceDiff);
 
+        holdingRepository.save(holding);
+        historyRepository.save(history);
         userRepository.save(user);
+
+        if (newAmt == 0) {
+            holdingRepository.delete(holding);
+            return null;
+        }else{
+            return new HoldingDto(
+                    holding.getId(),
+                    holding.getAmount(),
+                    holding.getAverage(),
+                    holding.getBuyPrice(),
+                    holding.getSymbol()
+            );
+        }
     }
 
     public void setLike(String symbol){

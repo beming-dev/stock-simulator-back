@@ -1,5 +1,8 @@
 package com.stock.stock_simulator.DTO;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class HoldingDto {
     public HoldingDto(
             Long id,
@@ -15,6 +18,16 @@ public class HoldingDto {
         this.amount = amount;
         this.average = average;
         this.buyPrice = buyPrice;
+    }
+
+    public HoldingDto(
+            Long id,
+            Integer amount,
+            Double average,
+            Double buyPrice,
+            String symbol
+    ) {
+        this(id, amount, average, buyPrice, symbol, null);
     }
 
     private Long   id;

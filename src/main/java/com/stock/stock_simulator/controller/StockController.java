@@ -19,6 +19,13 @@ public class StockController {
         this.stockService = stockService;
     }
 
+    @GetMapping("item")
+    public HoldingDto getStockItem(
+            @RequestParam String symbol
+    ) {
+        return stockService.getStockItem(symbol);
+    }
+
     @GetMapping("list")
     public List<HoldingDto> getStockList() {
         return stockService.getStockList();
@@ -31,27 +38,26 @@ public class StockController {
 
     @PostMapping("/buy")
     @ResponseBody
-    public String buy(
+    public HoldingDto buy(
             @RequestBody StockOrderDto stockOrderDto
     ) {
         String symbol = stockOrderDto.getSymbol();
         Integer amount = stockOrderDto.getAmount();
         Double price = stockOrderDto.getPrice();
 
-        stockService.handleBuy(symbol, amount, price);
-        return "";
+        return stockService.handleBuy(symbol, amount, price);
+
     }
     @PostMapping("/sell")
     @ResponseBody
-    public String sell(
+    public HoldingDto sell(
             @RequestBody StockOrderDto stockOrderDto
     ) {
         String symbol = stockOrderDto.getSymbol();
         Integer amount = stockOrderDto.getAmount();
         Double price = stockOrderDto.getPrice();
 
-        stockService.handleSell(symbol, amount, price);
-        return "";
+        return stockService.handleSell(symbol, amount, price);
     }
 
     @PostMapping("/like")
