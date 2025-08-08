@@ -34,8 +34,9 @@ public class WebSocketExternalConfig {
                         webSocketHandler,
                         wsUrl
                 );
-
         mgr.setAutoStartup(true);
+
+        webSocketHandler.setConnectionManager(mgr);
         return mgr;
     }
 }

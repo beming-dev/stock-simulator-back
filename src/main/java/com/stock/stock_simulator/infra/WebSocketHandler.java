@@ -1,6 +1,7 @@
 package com.stock.stock_simulator.infra;
 
 import com.google.gson.Gson;
+import com.stock.stock_simulator.config.ReconnectingWebSocketConnectionManager;
 import com.stock.stock_simulator.event.WebSocketEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -20,6 +21,11 @@ public class WebSocketHandler extends TextWebSocketHandler implements Applicatio
     private FrontendWebSocketHandler frontendWebSocketHandler;
     private String webSocketKey;
     private WebSocketSession session;
+    private ReconnectingWebSocketConnectionManager manager;
+
+    public void setConnectionManager(ReconnectingWebSocketConnectionManager manager) {
+        this.manager = manager;
+    }
 
     public void setWebSocketKey(String webSocketKey) {
         this.webSocketKey = webSocketKey;
@@ -46,10 +52,21 @@ public class WebSocketHandler extends TextWebSocketHandler implements Applicatio
     }
 
     private void sendMessage(String tr_id, String tr_key, String tr_type) throws Exception {
-        if (this.session == null || !this.session.isOpen()) {
-            System.out.println("WebSocket session is not open or is null.");
-            return;
+        if (session == null || !session.isOpen()) {
+            System.out.println("세션이 닫혔거나 없습니다. 재연결 시도…");
+            manager.stop();
+            manager.start();
+
+            int retries = 0;
+            while ((session == null || !session.isOpen()) && retries < 3) {
+                Thread.sleep(500);
+                retries++;
+            }
+            if (session == null || !session.isOpen()) {
+                throw new IllegalStateException("재연결 실패: " + retries + "회 시도");
+            }
         }
+
         // Gson 객체 생성
         Gson gson = new Gson();
 
