@@ -38,7 +38,6 @@ public class FrontendWebSocketHandler extends TextWebSocketHandler {
             if (sessions.remove(session)) {
                 System.out.println("Removed session: " + session.getId() + " from subscription: " + subscriptionKey);
 
-                System.out.println(sessions.size());
                 // sessions가 비어 있으면 subscriptions에서 subscriptionKey 삭제 (옵션)
                 if (sessions.isEmpty()) {
                     subscriptions.remove(subscriptionKey);

@@ -95,15 +95,8 @@ public class StockApiImpl implements StockApiInterface {
     @Override
     public String getAccessKey() {
         Token token = tokenService.getAccessToken();
-        System.out.println("[DEBUG] 기존 Token 조회 결과: " + token);
-
-        if (token != null) {
-            System.out.println("[DEBUG] token.getToken(): " + token.getToken());
-            System.out.println("[DEBUG] token.getExpires(): " + token.getExpires());
-        }
 
         if (token != null && !TokenService.isTokenExpired(token.getExpires())) {
-            System.out.println("[DEBUG] 기존 토큰 유효 → 반환: " + token.getToken());
             return token.getToken();
         } else {
             System.out.println("[DEBUG] 토큰 없음 또는 만료됨 → 신규 발급 로직 진입");

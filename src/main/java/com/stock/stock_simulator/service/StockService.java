@@ -85,7 +85,7 @@ public class StockService {
     @Transactional(readOnly = true)
     public List<HoldingDto> getStockList(){
         String gid = (String) request.getAttribute("gid");
-
+        System.out.println(gid);
         List<Holding> holdings =  holdingRepository.findByUserId(gid);
         List<String> symbols = holdings.stream()
                 .map(Holding::getSymbol)
@@ -161,7 +161,7 @@ public class StockService {
         }
 
         // update user asset
-        Double priceDiff = (holding.buyPrice - price) * amount;
+        Double priceDiff = (price) * amount;
         User user = userRepository.findByGid(gid);
 
         String country = StockUtil.koEnBySymbol(symbol);

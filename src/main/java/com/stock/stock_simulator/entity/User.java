@@ -44,7 +44,7 @@ public class User {
     }
 
     public Long getDollars() {
-        return won;
+        return dollars;
     }
     public void setDollars(Long dollars) {
         this.dollars = dollars;
@@ -74,7 +74,7 @@ public class User {
 
     public void updateAsset(String country, Double price){
         if(Objects.equals(country, StockConstant.KO)) setWon((long) (this.won + price));
-        else setDollars((long) (this.dollars - price));
+        else setDollars((long) (this.dollars + price));
     }
 
     @Override
