@@ -68,6 +68,16 @@ public class FrontendWebSocketHandler extends TextWebSocketHandler {
         String payload = message.getPayload();
         ObjectMapper objectMapper = new ObjectMapper();
 
+        if ("ping".equalsIgnoreCase(payload)) {
+            session.sendMessage(new TextMessage("{\"type\":\"pong\"}"));
+            return;
+        }
+
+        if (!(payload.startsWith("{") || payload.startsWith("["))) {
+            // JSON 아닌 건 무시
+            return;
+        }
+
         try {
             // JSON 데이터를 JsonNode로 파싱
             JsonNode rootNode = objectMapper.readTree(payload);
