@@ -1,5 +1,7 @@
 # Stock Simulator
 
+This is an stock trade simulation application.
+
 # Service Link
 https://beming-stock.kro.kr/
 
